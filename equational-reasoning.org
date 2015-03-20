@@ -1,0 +1,59 @@
+#+TITLE: Equational Reasoning
+#+AUTHOR: Lukas Hofmaierx
+* Haskell for all
+** The category design pattern
+[[http://www.haskellforall.com/2012/08/the-category-design-pattern.html][The category design pattern]]
+8.2012
+Fuer alle Kategorien gibt es ein composition operator. 
+Dieser hat left und right identity
+*** Categories
+- Function haskell functions
+- Keisly -> monads
+Der composition operator kann einfach angewendet werden.
+Anwendung Pipes
+** Manual proofs for the pipes laws
+[[http://www.haskellforall.com/2013/10/manual-proofs-for-pipes-laws.html][Manual proofs for the pipes laws]]
+10.2013
+primitives sind categories.
+Es werden die for loop laws erklaert.
+Kann equational reasoning machinel gemacht werden. adga
+** Test stream programming using Haskell's QuickCheck
+[[http://haskellforall.com/2013/11/test-stream-programming-using-haskells.html][Test stream using Quickcheck]]
+11.2013
+** Equational Reasoning
+[[http://www.haskellforall.com/2013/12/equational-reasoning.html][Equational Reasoning]]
+12.2013
+** Shortcut fusion for pipes
+[[http://www.haskellforall.com/2014_01_01_archive.html][Shortcut fusion for pipes]]
+1.2014
+Anwendungsfall: Rewrite Rules koennen mit Equational Reasoning verifiziert werden.
+** Reasoning about stream programming 
+[[http://www.haskellforall.com/2014/02/reasoning-about-stream-programming.html][Reasoning about stream programming]]
+2.2014
+
+** Scalable program architectures
+[[http://www.haskellforall.com/2014/04/scalable-program-architectures.html][Scalable programm architectures]]
+Vergleich von layer pattern fuer cominability. 
+Was ist der Unterschied zu pipes & filters?
+Man kombiniert mehr als eins in eins oder weniger als eins in eins.
+Category theory bietet solche pattern.
+4.2014
+** Equational Reasoning at scale
+[[http://www.haskellforall.com/2014/07/equational-reasoning-at-scale.html][Equational reasoning at scale]]
+7.2014
+*** Laws
+- Monoid Laws
+- Applicative Laws
+
+Haskell definiert Type class Monoid
+Monoid hat laws.
+Ein Funktion deren Typ die Typ Klasse Monoid hat, wird implementiert.
+Wenn die Funktion von der Typ Klasse Monoid ist hat die Funktion die Monoid propertiesa
+Monoid haben Laws.
+Die Implementation wird mit equational reasoning bewiesen. 
+Fuer ein Tupel von Ints wird bewiesen, das die Monoid laws eingehalten werden.
+Ein keylogger wird als Beispiel aufgefuehrt.
+install :: IO (Chra
+
+* Pipes
+[[http://hackage.haskell.org/package/pipes-4.1.0/docs/Pipes-Tutorial.html][Pipes Tutorial]]
