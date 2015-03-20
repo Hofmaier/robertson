@@ -11,6 +11,10 @@ Dieser hat left und right identity
 - Keisly -> monads
 Der composition operator kann einfach angewendet werden.
 Anwendung Pipes
+** The functor design pattern
+[[http://www.haskellforall.com/2012/09/the-functor-design-pattern.html][The functor design pattern]]
+9.2012
+Transformiert eine Category in eine andere.
 ** Manual proofs for the pipes laws
 [[http://www.haskellforall.com/2013/10/manual-proofs-for-pipes-laws.html][Manual proofs for the pipes laws]]
 10.2013
