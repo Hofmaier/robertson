@@ -1,5 +1,6 @@
 #+TITLE: Equational Reasoning
-#+AUTHOR: Lukas Hofmaierx
+#+AUTHOR: Lukas Hofmaier
+
 * Haskell for all
 ** The category design pattern
 [[http://www.haskellforall.com/2012/08/the-category-design-pattern.html][The category design pattern]]

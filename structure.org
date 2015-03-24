@@ -1,8 +1,10 @@
-#+TITLE: Equational Reasoning
+#+TITLE: Type class laws and Equational Reasoning
 #+AUTHOR: Lukas Hofmaier
 
-category laws und functor laws spezifizieren properties. 
-Properties koennen mit equational reasoning verifiziert.
+Category laws und Functor laws spezifizieren Properties. 
+Properties koennen mit Equational Reasoning verifiziert werden.
+Ich moechte in diesem Report zeigen, weshalb die Laws von Type classes nuetzlich sind und wie man sie mit Equational Reasoning verifizieren kann.
+
 * Type classes have laws (Category theory laws)
 Weshalb haben Type classes laws? 
 Type classes sind Categories.
@@ -23,22 +25,26 @@ Category theory schreibt laws vor (category laws):
 - Associativity law
 - Left identity law
 - Right identity law
-*** Comparison: conventional architecture vs. combinability (functional architecture)
+
+Comparison: conventional architecture vs. combinability (functional architecture)
 Konventionelle Architekture schlaegt vor, dass man mehrer Componenten von Typ A zu einem Typ B zusammenfasst. 
 Es entstehen Layers.
 Category pattern schlaegt vor dass man mehrere Komponenten von Typ A zu A zusammenfasst. 
 Der neue Typ unterscheidet sich nicht von Mehreren (Composability)
+*** Monoid laws
 *** Example
 Pipes sind auch composable.
 ** Functor design pattern (functor laws)
 Transformiert eine Category in eine andere.
-*** functor laws
+*** Functor laws
 - composition law
 - identity law
 * Equational Reasoning
 Mit der Methode equational reasoning werden properties verifziert. 
 ** Proof by induction
 Um ein property zu verifizieren wird in vielen Beispielen proof by induction angewendet.
+*** Optimisation by induction
+Definitionen koennen mit Hilfe von Induction optimiert werden.
 ** Reasoning about algebraic types
 ** Composition of proofs
 Kleine components werden mit proofs verifiziert. 
@@ -61,7 +67,6 @@ Man kann rewrite rules verifizieren mit equational reasoning.
 pipes wird mit rewrite rules optimiert.
 *** Haskell rewrite rules system
 *** short-cut fusion
-Ist eine optimierungs methode
-
+Ist eine optimierungs 
 * Fragen
-- Weshalb eignet sich Haskell fuer equational reasoning
+- Weshalb eignet sich Haskell fuer equational reasoning?

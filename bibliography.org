@@ -1,0 +1,16 @@
+#+TITLE: Bibliography: Type class laws and equational reasoning
+#+AUTHOR: Lukas Hofmaier
+
+Diesen Blogpost moechte ich gerne verstehen. Der Post ist der Grund, weshalb ich das Thema gewaehlt habe: [[http://www.haskellforall.com/2014/07/equational-reasoning-at-scale.html][Equational reasoning at scale]]
+* Type class laws
+- The Typeclassopedia :: Brent Yorgey, The monad reader, Issue 13. Artikel ueber Type classes des Haskell Standard. Zu jeder Type class werden auch Laws beschrieben. [[https://wiki.haskell.org/wikiupload/8/85/TMR-Issue13.pdf][The monad reader issue 13]]
+- Category design pattern :: [[http://www.haskellforall.com/2012/08/the-category-design-pattern.html][haskellforall Blogpost]]
+- Functor design pattern :: [[http://www.haskellforall.com/2012/09/the-functor-design-pattern.html][haskellforall Blogpost]]
+* Equational reasoning
+- Programming in Haskell :: Graham Hutton, Cambridge University Press, Chapter 13 Reasoning about programs. Kapitel 13 gibt eine Einfuehrung in Equational Reasoning mit einem Beispiel.
+- Haskell: The Craft of Functional Programming :: Thompson Simon, Addison-Wesley. Erklaert Equational Reasoning und Type classes.
+- The Haskell road to logic, maths and programming :: Enthaelt Kapitel ueber Proofs von Properties 
+- Equation Reasoning :: [[http://www.haskellforall.com/2013/12/equational-reasoning.html][haskellforall Blogpost]]
+* Pipes
+- Pipes Tutorial :: [[http://hackage.haskell.org/package/pipes-4.1.0/docs/Pipes-Tutorial.html][Pipes Tutorial]]
+
