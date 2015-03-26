@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+               "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>Equational Reasoning</title>
+<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
+<meta name="title" content="Equational Reasoning"/>
+<meta name="generator" content="Org-mode"/>
+<meta name="generated" content="2015-03-20T11:24+0100"/>
+<meta name="author" content="Lukas Hofmaier"/>
+<meta name="description" content=""/>
+<meta name="keywords" content=""/>
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  html { font-family: Times, serif; font-size: 12pt; }
+  .title  { text-align: center; }
+  .todo   { color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #add8e6; font-weight:normal }
+  .target { }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .right  {margin-left:auto; margin-right:0px;  text-align:right;}
+  .left   {margin-left:0px;  margin-right:auto; text-align:left;}
+  .center {margin-left:auto; margin-right:auto; text-align:center;}
+  p.verse { margin-left: 3% }
+  pre {
+	border: 1pt solid #AEBDCC;
+	background-color: #F3F5F7;
+	padding: 5pt;
+	font-family: courier, monospace;
+        font-size: 90%;
+        overflow:auto;
+  }
+  table { border-collapse: collapse; }
+  td, th { vertical-align: top;  }
+  th.right  { text-align:center;  }
+  th.left   { text-align:center;   }
+  th.center { text-align:center; }
+  td.right  { text-align:right;  }
+  td.left   { text-align:left;   }
+  td.center { text-align:center; }
+  dt { font-weight: bold; }
+  div.figure { padding: 0.5em; }
+  div.figure p { text-align: center; }
+  div.inlinetask {
+    padding:10px;
+    border:2px solid gray;
+    margin:10px;
+    background: #ffffcc;
+  }
+  textarea { overflow-x: auto; }
+  .linenr { font-size:smaller }
+  .code-highlighted {background-color:#ffff00;}
+  .org-info-js_info-navigation { border-style:none; }
+  #org-info-js_console-label { font-size:10px; font-weight:bold;
+                               white-space:nowrap; }
+  .org-info-js_search-highlight {background-color:#ffff00; color:#000000;
+                                 font-weight:bold; }
+  /*]]>*/-->
+</style>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+
+</head>
+<body>
+
+<div id="preamble">
+
+</div>
+
+<div id="content">
+<h1 class="title">Equational Reasoning</h1>
+
+<p>Category laws und functor laws spezifizieren properties. 
+Properties koennen mit equational reasoning verifiziert werden.
+Ich moechte in diesem Report zeigen, weshalb die Laws von Type classes nuetzlich sind und wie man sie mit equational reasoning verifizieren kann.
+</p>
+
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1 Type classes have laws (Category theory laws)</a>
+<ul>
+<li><a href="#sec-1-1">1.1 Category design pattern (composable programming)</a>
+<ul>
+<li><a href="#sec-1-1-1">1.1.1 Monoid laws</a></li>
+<li><a href="#sec-1-1-2">1.1.2 Example</a></li>
+</ul>
+</li>
+<li><a href="#sec-1-2">1.2 Functor design pattern (functor laws)</a>
+<ul>
+<li><a href="#sec-1-2-1">1.2.1 Functor laws</a></li>
+</ul></li>
+</ul>
+</li>
+<li><a href="#sec-2">2 Equational Reasoning</a>
+<ul>
+<li><a href="#sec-2-1">2.1 Proof by induction</a>
+<ul>
+<li><a href="#sec-2-1-1">2.1.1 Optimisation by induction</a></li>
+</ul>
+</li>
+<li><a href="#sec-2-2">2.2 Reasoning about algebraic types</a></li>
+<li><a href="#sec-2-3">2.3 Composition of proofs</a></li>
+<li><a href="#sec-2-4">2.4 Proof automation</a></li>
+</ul>
+</li>
+<li><a href="#sec-3">3 Real world example: pipes</a>
+<ul>
+<li><a href="#sec-3-1">3.1 Streaming data problem (Problem with Lazy IO)</a></li>
+<li><a href="#sec-3-2">3.2 Optimierung mit Rewrite rules</a>
+<ul>
+<li><a href="#sec-3-2-1">3.2.1 Haskell rewrite rules system</a></li>
+<li><a href="#sec-3-2-2">3.2.2 short-cut fusion</a></li>
+</ul></li>
+</ul>
+</li>
+<li><a href="#sec-4">4 Fragen</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Type classes have laws (Category theory laws)</h2>
+<div class="outline-text-2" id="text-1">
+
+<p>Weshalb haben Type classes laws? 
+Type classes sind Categories.
+</p><ul>
+<li>Haskell function -&gt; Function category
+</li>
+<li>Monad -&gt; Keisli category
+</li>
+</ul>
+
+
+<p>
+Folgende Type classes und ihre laws sind releveant.
+</p><ul>
+<li>Functor
+</li>
+<li>Applicative
+</li>
+<li>Monad
+</li>
+<li>Monoid
+</li>
+</ul>
+
+
+<p>
+Weshalb sind categories nuetzlich und weshalb ist es wichtig, dass sie die laws erfuellen?
+</p>
+</div>
+
+<div id="outline-container-1-1" class="outline-3">
+<h3 id="sec-1-1"><span class="section-number-3">1.1</span> Category design pattern (composable programming)</h3>
+<div class="outline-text-3" id="text-1-1">
+
+<p>Ein Category im Sinne der Category Theory ist ein compositional design pattern.
+(Was ist der Untschied zwischen Pipes &amp; Filter und compositional?).
+Category theory schreibt laws vor (category laws):
+</p><ul>
+<li>Associativity law
+</li>
+<li>Left identity law
+</li>
+<li>Right identity law
+</li>
+</ul>
+
+
+<p>
+Comparison: conventional architecture vs. combinability (functional architecture)
+Konventionelle Architekture schlaegt vor, dass man mehrer Componenten von Typ A zu einem Typ B zusammenfasst. 
+Es entstehen Layers.
+Category pattern schlaegt vor dass man mehrere Komponenten von Typ A zu A zusammenfasst. 
+Der neue Typ unterscheidet sich nicht von Mehreren (Composability)
+</p>
+</div>
+
+<div id="outline-container-1-1-1" class="outline-4">
+<h4 id="sec-1-1-1"><span class="section-number-4">1.1.1</span> Monoid laws</h4>
+<div class="outline-text-4" id="text-1-1-1">
+
+</div>
+
+</div>
+
+<div id="outline-container-1-1-2" class="outline-4">
+<h4 id="sec-1-1-2"><span class="section-number-4">1.1.2</span> Example</h4>
+<div class="outline-text-4" id="text-1-1-2">
+
+<p>Pipes sind auch composable.
+</p></div>
+</div>
+
+</div>
+
+<div id="outline-container-1-2" class="outline-3">
+<h3 id="sec-1-2"><span class="section-number-3">1.2</span> Functor design pattern (functor laws)</h3>
+<div class="outline-text-3" id="text-1-2">
+
+<p>Transformiert eine Category in eine andere.
+</p>
+</div>
+
+<div id="outline-container-1-2-1" class="outline-4">
+<h4 id="sec-1-2-1"><span class="section-number-4">1.2.1</span> Functor laws</h4>
+<div class="outline-text-4" id="text-1-2-1">
+
+<ul>
+<li>composition law
+</li>
+<li>identity law
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> Equational Reasoning</h2>
+<div class="outline-text-2" id="text-2">
+
+<p>Mit der Methode equational reasoning werden properties verifziert. 
+</p>
+</div>
+
+<div id="outline-container-2-1" class="outline-3">
+<h3 id="sec-2-1"><span class="section-number-3">2.1</span> Proof by induction</h3>
+<div class="outline-text-3" id="text-2-1">
+
+<p>Um ein property zu verifizieren wird in vielen Beispielen proof by induction angewendet.
+</p>
+</div>
+
+<div id="outline-container-2-1-1" class="outline-4">
+<h4 id="sec-2-1-1"><span class="section-number-4">2.1.1</span> Optimisation by induction</h4>
+<div class="outline-text-4" id="text-2-1-1">
+
+<p>Definitionen koennen mit Hilfe von Induction optimiert werden.
+</p></div>
+</div>
+
+</div>
+
+<div id="outline-container-2-2" class="outline-3">
+<h3 id="sec-2-2"><span class="section-number-3">2.2</span> Reasoning about algebraic types</h3>
+<div class="outline-text-3" id="text-2-2">
+
+</div>
+
+</div>
+
+<div id="outline-container-2-3" class="outline-3">
+<h3 id="sec-2-3"><span class="section-number-3">2.3</span> Composition of proofs</h3>
+<div class="outline-text-3" id="text-2-3">
+
+<p>Kleine components werden mit proofs verifiziert. 
+Diese koennen wiederverwendet werden um groessere Components zu beweisen.
+Wie werden die Proofs zusammengesetzt.
+Was ist ein Morphism?
+</p></div>
+
+</div>
+
+<div id="outline-container-2-4" class="outline-3">
+<h3 id="sec-2-4"><span class="section-number-3">2.4</span> Proof automation</h3>
+<div class="outline-text-3" id="text-2-4">
+
+<p>Gibt es tools die equational reasoning automatisieren koennen?
+</p><ul>
+<li>Agda
+</li>
+</ul>
+
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> Real world example: pipes</h2>
+<div class="outline-text-2" id="text-3">
+
+<p>Pipes ist ein stream library fuer Haskell. 
+Sie wurde urspruenglich geschrieben, weil die "lazy IO" library problematisch ist (streaming data problem).
+pipes nutzt equational reasoning um correctness zu verifizieren.
+In pipes wird das category design pattern angewendet.
+</p>
+</div>
+
+<div id="outline-container-3-1" class="outline-3">
+<h3 id="sec-3-1"><span class="section-number-3">3.1</span> Streaming data problem (Problem with Lazy IO)</h3>
+<div class="outline-text-3" id="text-3-1">
+
+<p>Weshalb wurde pipes ueberhaupt geschrieben? Weshalt ist lazy I/O problematisch.
+</p></div>
+
+</div>
+
+<div id="outline-container-3-2" class="outline-3">
+<h3 id="sec-3-2"><span class="section-number-3">3.2</span> Optimierung mit Rewrite rules</h3>
+<div class="outline-text-3" id="text-3-2">
+
+<p>Rewrite rules werden dazu genutzt um Haskell code zu optimieren ohne Rueckwaertskompatibilaet zu anzutasten.
+Man kann rewrite rules verifizieren mit equational reasoning.
+pipes wird mit rewrite rules optimiert.
+</p>
+</div>
+
+<div id="outline-container-3-2-1" class="outline-4">
+<h4 id="sec-3-2-1"><span class="section-number-4">3.2.1</span> Haskell rewrite rules system</h4>
+<div class="outline-text-4" id="text-3-2-1">
+
+</div>
+
+</div>
+
+<div id="outline-container-3-2-2" class="outline-4">
+<h4 id="sec-3-2-2"><span class="section-number-4">3.2.2</span> short-cut fusion</h4>
+<div class="outline-text-4" id="text-3-2-2">
+
+<p>Ist eine optimierungs 
+</p></div>
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> Fragen</h2>
+<div class="outline-text-2" id="text-4">
+
+<ul>
+<li>Weshalb eignet sich Haskell fuer equational reasoning?
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+
+<div id="postamble">
+<p class="date">Date: 2015-03-20T11:24+0100</p>
+<p class="author">Author: Lukas Hofmaier</p>
+<p class="creator"><a href="http://orgmode.org">Org</a> version 7.9.3f with <a href="http://www.gnu.org/software/emacs/">Emacs</a> version 24</p>
+<a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>
+
+</div>
+</body>
+</html>
