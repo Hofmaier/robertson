@@ -1,15 +1,59 @@
 \documentclass[twoside, a4paper]{article}
+\usepackage{fancyvrb}
 \author{Lukas Hofmaier}
 \title{Type class laws}
 \begin{document}
 \maketitle
 \tableofcontents
 
+\section{Introduction}
+\label{sec:intro}
+
+Formal verification is a tool use for software application with the aim of providing a high reliability. The first formally verfified microkernel, seL4 was verified using Haskell. Haskell was used because programmers can reason about the source code \cite{Klein09}.
+Referential transparent functional programming language are suited for verif
+
 \section{Type classes}
 \label{sec:typeclasses}
+
+A type class is like an interface. It defines behavior of a type. A type becomes an instance of a type class if it implements the functions of the type class. When a type class implements a type class, the type provides the functions, which the type class defines.
+The concept of a type class is explained with the function \verb|show| from the \verb|Prelude|-Library. \verb|show| converts a given type into a character string.
+\begin{verbatim}
+Show a => a -> String
+\end{verbatim}
+The \verb|Show a| before the \verb|=>| is a class constraint. \verb|a| is a type variable. The signature means that \verb|show| takes something that implements the type class \verb|Show| and returns a string. \verb|Show| is a type class. Any type that implements \verb|Show| can be converted to a character string. Types in this class are \verb|Bool|, \verb|Char|, \verb|Int|, \verb|Float|, \verb|Double| etc.
+
+A type class is defined as follows: For example \verb|Show|:
+\begin{verbatim}
+class Show a where
+    show :: a -> String
+\end{verbatim}
+The keyword \verb|class| defines a new type class. \verb|a| is the type variable. It can be replaced with the type that implements the type class.
+
+Once we have a class we make types instances of that class. If we have a type \verb|Person| with an name and an email address:
+\begin{verbatim}
+data Person = Person { name :: String
+                       email :: String
+                     }
+\end{verbatim}
+
+To print out a person the type \verb|Person| has to be an instance of \verb|Show|.
+
+\begin{verbatim}
+instance Show Person where
+    show (Person name _) = name
+\end{verbatim}
+
+There many other useful type classes in the standard library.
+
+\begin{description}
+\item[Ord] Types with an order relation implement \verb|Ord|.
+\item[Eq] For types that can be equated.
+\item[Read] Types that can be convertet from a string.
+\end{description}
 
 \subsection{Functor}
 \label{sec:functor}
 
-
+\bibliographystyle{plain}
+\bibliography{a}
 \end{document}
