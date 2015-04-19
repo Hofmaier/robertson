@@ -1,23 +1,22 @@
 #+TITLE: Type class laws and Equational Reasoning
 #+AUTHOR: Lukas Hofmaier
 
-Category laws und Functor laws spezifizieren Properties. 
+Type class in der Haskell standard library spezifizieren Laws (Properties). 
 Properties koennen mit Equational Reasoning verifiziert werden.
 Ich moechte in diesem Report zeigen, weshalb die Laws von Type classes nuetzlich sind und wie man sie mit Equational Reasoning verifizieren kann.
-
-* Type classes have laws (Category theory laws)
-Weshalb haben Type classes laws? 
-Type classes sind Categories.
-- Haskell function -> Function category
-- Monad -> Keisli category
-
-Folgende Type classes und ihre laws sind releveant.
-- Functor
-- Applicative
+* Introduction
+ bei conduit ist es nicht moeglich aussagen ueber properties zu machen bei pipes schone,
+* Type classes (Laws) 
+Beschreibung folgender Typeclasses und der dazugehoerigen Laws
+- Functor :: Functor design pattern
+- Applicative 
 - Monad
 - Monoid
 
-Weshalb sind categories nuetzlich und weshalb ist es wichtig, dass sie die laws erfuellen?
+Weshalb haben Type classes Laws? Weshalb sind Laws nuetzlich (Optimization)?
+Optimierung durch Rewrite Rules. Short cut Fusion.
+Beschreibung Composition und category design pattern
+
 ** Category design pattern (composable programming)
 Ein Category im Sinne der Category Theory ist ein compositional design pattern.
 (Was ist der Untschied zwischen Pipes & Filter und compositional?).
@@ -40,7 +39,7 @@ Transformiert eine Category in eine andere.
 - composition law
 - identity law
 * Equational Reasoning
-Mit der Methode equational reasoning werden properties verifziert. 
+Mit der Methode Equational Reasoning werden properties verifziert. 
 ** Proof by induction
 Um ein property zu verifizieren wird in vielen Beispielen proof by induction angewendet.
 *** Optimisation by induction
@@ -54,19 +53,36 @@ Was ist ein Morphism?
 ** Proof automation
 Gibt es tools die equational reasoning automatisieren koennen?
 - Agda
-* Real world example: pipes
-Pipes ist ein stream library fuer Haskell. 
-Sie wurde urspruenglich geschrieben, weil die "lazy IO" library problematisch ist (streaming data problem).
-pipes nutzt equational reasoning um correctness zu verifizieren.
-In pipes wird das category design pattern angewendet.
-** Streaming data problem (Problem with Lazy IO)
-Weshalb wurde pipes ueberhaupt geschrieben? Weshalt ist lazy I/O problematisch.
-** Optimierung mit Rewrite rules
+- isabelle prover
+* Real world examples
+** Optimierung mit Rewrite rules (Refactoring)
 Rewrite rules werden dazu genutzt um Haskell code zu optimieren ohne Rueckwaertskompatibilaet zu anzutasten.
 Man kann rewrite rules verifizieren mit equational reasoning.
 pipes wird mit rewrite rules optimiert.
 *** Haskell rewrite rules system
 *** short-cut fusion
-Ist eine optimierungs 
+
+** Pipes
+Weshalb wurde pipes ueberhaupt geschrieben? Weshalt ist lazy I/O problematisch.
+Pipes ist ein stream library fuer Haskell. 
+Sie wurde urspruenglich geschrieben, weil die "lazy IO" library problematisch ist (streaming data problem).
+pipes nutzt equational reasoning um correctness zu verifizieren.
+In pipes wird das category design pattern angewendet.
+*** Streaming data problem (Problem with Lazy IO)
+
+
 * Fragen
 - Weshalb eignet sich Haskell fuer equational reasoning?
+* Categroy Theorie
+Type classes sind Categories.
+- Haskell function -> Morphism von Hask Kategorie
+- Monad -> Keisli category
+* notizen 
+- beispiele vorbereiten
+- was ist der unterschied zwischen polymorphismus und 
+- scientific paper zu laws 
+- Woher kommt equational reasoning. 
+- was ist eine a
+- isabelle Th
+- urquellen verlinken.
+- polymorphism.

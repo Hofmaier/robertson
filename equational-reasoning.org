@@ -62,3 +62,34 @@ install :: IO (Chra
 
 * Pipes
 [[http://hackage.haskell.org/package/pipes-4.1.0/docs/Pipes-Tutorial.html][Pipes Tutorial]]
+
+* Category theory
+Kategorie hat 3 Komponenten
+- collection of objects
+- collection of morphisms
+- composition of morphisms :: morphisms koennen zusammengesetzt werden
+
+** Beispiele von Kategorien
+*** Set 
+- Objekte ::  R, [-1,1]
+- Morphisms :: bFunktion sin, cos R -> [-1,1]
+- Set ist die Kategorie aller Sets. ist ein Objekt. Ein Mor
+***  Groups
+*** Partial order
+*** Lst
+- Objekte :: Lst enthaelt alle List types. [T] fuer alle T
+- Morhpisms :: Funktion [T] -> [U]
+*** Hask
+- Objekte :: Types
+- Morphisms :: Function
+
+** Category laws
+- Associativity :: Reihenfolge spielt keine Rolle
+- Closed ::
+- Identity :: fuer jedes objekt muss es eine id morphism geben.
+
+* Functor
+** Axioms
+- F(id_A) = id_{F(A)}
+- composition law :: functors must distribute over morphism composition
+
