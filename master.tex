@@ -66,6 +66,9 @@ Functor defines all instances must implement the function \verb|fmap|.
 class Functor f where
     fmap :: (a -> b) -> f a -> f b
 \end{verbatim}
+  \caption{Functor type class declaration}
+  \label{fig:functordeclaration}
+\end{figure}
 
 \verb|fmap| takes any function \verb|a -> b| and a value of type \verb|f a| and returns a value of type \verb|f b|. 
 If \verb|f| is of type \verb|Maybe| \verb|Int| and the function of type \verb|Int -> String|, \verb|fmap| returns \verb|Maybe String|. 
@@ -79,11 +82,54 @@ Instances of \verb|Functor| are:
 \item[Either] \verb|Either e a| is a container. \verb|fmap| applies a function to \verb|a|.
 \end{description}
 
-A \verb
-  
-  \caption{Functor type class declaration}
-  \label{fig:functordeclaration}
+Instances of the \verb|Functor| type class are expected to exhibit certain kinds of properties. This properties are called the functor laws.
+The Haskell Compiler doesn't detect violations of the expected laws. All Functor instances in the standard library obey these laws.
+
+A Functor instance has to satisfy the following laws.
+
+\begin{description}
+\item[Law 1] Mapping the identity function over a functor value, will not change the functor value.
+\item[Law 2] The second law states that it doesn't matter if we compose two functions and them map them over a functor or if we first map one function over the functor and then map the other function. Formally
+\begin{verbatim}
+fmap (g . h) = fmap g . fmap h
+\end{verbatim}
+This is the same as \verb|fmap (g . h) = fmap g (fmap h)|
+\end{description}
+
+If we can prove that a type satisfies these laws, we can make assumptions about how the the type will act. And we know that \verb|fmap| only maps the function over the functor. It will not change the structure or the context of the functor.
+
+\begin{figure}
+  \centering
+\begin{verbatim}
+fmap id = id
+fmap (g . h) = fmap g . fmap h
+\end{verbatim}
+  \caption{The Functor laws}
+  \label{fig:functorlaws}
 \end{figure}
+
+\section{Function composition}
+\label{sec:functioncomposition}
+
+Function composition in mathematics is defined as
+\begin{equation}
+  \label{eq:functioncomposition}
+  (f \circ g)(x) = f(g(x))
+\end{equation}
+
+Haskell functions can be compose with the \verb|.| function.
+
+\begin{figure}
+  \centering
+\begin{verbatim}
+(.) :: (b -> c) -> (a -> b) -> a -> c
+f . g = \x -> f (g x)
+\end{verbatim}
+  \caption{. function}
+  \label{fig:compositionfunction}
+\end{figure}
+
+Function composition allows us to create a function by composing it with many small functions.
 
 \bibliographystyle{plain}
 \bibliography{a}
