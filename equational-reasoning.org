@@ -93,3 +93,5 @@ Kategorie hat 3 Komponenten
 - F(id_A) = id_{F(A)}
 - composition law :: functors must distribute over morphism composition
 
+* Fragen fuer Draft
+Kann ich Blog-Post fuer Functor pattern referenzieren.
