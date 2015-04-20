@@ -54,6 +54,37 @@ There many other useful type classes in the standard library.
 \subsection{Functor}
 \label{sec:functor}
 
+Functor is a type class for types, which can be mapped over. 
+
+The type class declaration is shown in Listing \ref{fig:functordeclaration}.
+The \verb|f| in the declaration is a type class constructor. Only type constructor can implement \verb|Functor| (\verb|Maybe|, \verb|[]|).
+
+Functor defines all instances must implement the function \verb|fmap|.
+\begin{figure}
+  \centering
+\begin{verbatim}
+class Functor f where
+    fmap :: (a -> b) -> f a -> f b
+\end{verbatim}
+
+\verb|fmap| takes any function \verb|a -> b| and a value of type \verb|f a| and returns a value of type \verb|f b|. 
+If \verb|f| is of type \verb|Maybe| \verb|Int| and the function of type \verb|Int -> String|, \verb|fmap| returns \verb|Maybe String|. 
+
+\verb|fmap| applies a function to a value without altering its structure or context.
+
+Instances of \verb|Functor| are:
+
+\begin{description}
+\item[List] \verb|map| for lists for is the same as \verb|fmap|.
+\item[Either] \verb|Either e a| is a container. \verb|fmap| applies a function to \verb|a|.
+\end{description}
+
+A \verb
+  
+  \caption{Functor type class declaration}
+  \label{fig:functordeclaration}
+\end{figure}
+
 \bibliographystyle{plain}
 \bibliography{a}
 \end{document}
