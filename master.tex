@@ -1,7 +1,11 @@
 \documentclass[twoside, a4paper]{article}
-\usepackage{fancyvrb}
+\usepackage{amsmath}
+\usepackage{float}
+\newfloat{program}{thp}{lop}
+\floatname{program}{Listing}
 \author{Lukas Hofmaier}
 \title{Type class laws}
+
 \begin{document}
 \maketitle
 \tableofcontents
@@ -20,7 +24,8 @@ The concept of a type class is explained with the function \verb|show| from the 
 \begin{verbatim}
 Show a => a -> String
 \end{verbatim}
-The \verb|Show a| before the \verb|=>| is a class constraint. \verb|a| is a type variable. The signature means that \verb|show| takes something that implements the type class \verb|Show| and returns a string. \verb|Show| is a type class. Any type that implements \verb|Show| can be converted to a character string. Types in this class are \verb|Bool|, \verb|Char|, \verb|Int|, \verb|Float|, \verb|Double| etc.
+The \verb|Show a| before the \verb|=>| is a class constraint. \verb|a| is a type variable. The signature means that \verb|show| takes something that implements the type class \verb|Show| and returns a string. \verb|Show| is a type class. 
+Any type that implements \verb|Show| can be converted to a character string. Types in this class are \verb|Bool|, \verb|Char|, \verb|Int|, \verb|Float|, \verb|Double| etc.
 
 A type class is defined as follows: For example \verb|Show|:
 \begin{verbatim}
@@ -122,9 +127,30 @@ We will describe the difference with a simple example.
 If we apply \verb|reverse| to times on the same list \verb|xs| we get back the original list \verb|xs|. \verb|reverse| is the inverse of \verb|reverse|. 
 
 
+\begin{equation}
+  \label{eq:reverse_prop}
+\text{reverse} (\text{reverse} xs) == xs  
+\end{equation}
+This boolean expression formulates a desired property. 
+
 \begin{description}
-\item[Testing] Run the program with selected input and check if it behaves as expected.
-\item[Property-based testing] 
+\item[Testing] Run the program with selected input and check if it behaves as expected. Listing \ref{lst:testfunction} gives a test function of the propery \ref{eq:reverse_prop} for the input \verb|[1,2,3]|.
+  \label{fig:test}
+\begin{program}
+\begin{verbatim}
+input = [1,2,3]
+
+test_reverse :: [Int] -> Bool
+test_reverse xs = reverse (reverse xs) == xs
+\end{verbatim}
+\caption{Test-Function}
+\label{lst:testfunction}
+\end{program}
+
+In order to check if the property \ref{eq:reverse_prop} for the given input holds, we have to run the program.
+ An advantage of this method is, that the programmer hasn't to define general properties. It's easier to think about a concrete input and the corresponding output.
+
+\item[Property-based testing]  
 \end{description}
 
 \section{Function composition}
