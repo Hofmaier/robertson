@@ -1,6 +1,7 @@
 \documentclass[twoside, a4paper]{article}
 \usepackage{amsmath}
 \usepackage{float}
+\usepackage{graphicx}
 \newfloat{program}{thp}{lop}
 \floatname{program}{Listing}
 \author{Lukas Hofmaier}
@@ -126,7 +127,6 @@ There are several ways to check the behavior of a program.
 We will describe the difference with a simple example.
 If we apply \verb|reverse| to times on the same list \verb|xs| we get back the original list \verb|xs|. \verb|reverse| is the inverse of \verb|reverse|. 
 
-
 \begin{equation}
   \label{eq:reverse_prop}
 \text{reverse} (\text{reverse} xs) == xs  
@@ -150,8 +150,30 @@ test_reverse xs = reverse (reverse xs) == xs
 In order to check if the property \ref{eq:reverse_prop} for the given input holds, we have to run the program.
  An advantage of this method is, that the programmer hasn't to define general properties. It's easier to think about a concrete input and the corresponding output.
 
-\item[Property-based testing]  
+\item[Property-based testing] The input for the test program is genereted randomly. The test are executed by a tool (e.g. Quickcheck)
+\item[Proof] A Proof can show that a property holds in all circumstances. With the definition of the function \verb|reverse| it's possible to proof that property \ref{eq:reverse_prop} always holds. 
 \end{description}
+
+\begin{figure}
+  \centering
+     \includegraphics[width=0.9\textwidth]{comp}
+  \caption{Comparison of test, property-based-testing and proof}
+  \label{fig:property_validation}
+\end{figure}
+
+Equational reasoning isn't a method only used in programming. Equational reasoning is the process of substituting expressions. With equational reasoning we are able to show that certain properties hold.
+For example, it's possible to show that
+\begin{equation}
+  \label{eq:sum}
+  (x+a)(x+b) = x^2 + (a+b)x+ab
+\end{equation}
+is true. To show the equality we have to only have to substitute the expression on the left-hand side with the help of the basic algebraic properties of numbers (commutative, associative, distributive).
+
+A function definition in Haskell means that we can substitute the lefthand side. Hence, we can use reasoning about a Haskell program in the same way, we reason about mathematical expressions. With equational reasoning it's possible to deduce properties from definitions.
+
+For example, it's possible to show that 
+\begin{program}
+\end{program}
 
 \section{Function composition}
 \label{sec:functioncomposition}
