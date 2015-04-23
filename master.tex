@@ -24,7 +24,7 @@ Purely functional programming languages are easier to reason about as imperative
 A type class is like an interface. It defines behavior of a type. A type becomes an instance of a type class if it implements the functions of the type class. When a type class implements a type class, the type provides the functions, which the type class defines.
 The concept of a type class is explained with the function \verb|show| from the \verb|Prelude|-Library. \verb|show| converts a given type into a character string.
 \begin{verbatim}
-Show a => a -> String
+show :: Show a => a -> String
 \end{verbatim}
 The \verb|Show a| before the \verb|=>| is a class constraint. \verb|a| is a type variable. The signature means that \verb|show| takes something that implements the type class \verb|Show| and returns a string. \verb|Show| is a type class. 
 Any type that implements \verb|Show| can be converted to a character string. Types in this class are \verb|Bool|, \verb|Char|, \verb|Int|, \verb|Float|, \verb|Double| etc.
@@ -69,7 +69,7 @@ id:: a -> a
 \end{verbatim}
 The \verb|id| function can be used with any type. There are no constraints. At compile time the type variable are substituted with a concrete type. For example
 \verb|Char -> Char|.
-\item[Ad-hoc polymorphism] It's a synonym for function overloading or operator overloading. Polymorphic functions can be applied to types with different types. A polymorphic function uses different definitions (implementations) depending on the types of the arguments. 
+\item[Ad-hoc polymorphism] It's a synonym for function overloading or operator overloading. Polymorphic functions can be applied to types with different types. A polymorphic function uses different definitions (implementations) depending on the types of the arguments. If a type can be converted to a string, it can be given the type class \verb|Show|. The type \verb|Person| has to implement \verb|show|. Appying \verb|show| to \verb|Person| results in a diffent behavior then applying \verb|show| to an \verb|Int|.
 \end{description}
 
 \subsection{Functor}
@@ -133,8 +133,6 @@ fmap (g . h) = fmap g . fmap h
   \caption{The Functor laws}
   \label{fig:functorlaws}
 \end{figure}
-
-
 
 \section{Equational Reasoning}
 \label{sec:equationalreasoning}
@@ -324,6 +322,16 @@ Pipes is a streaming library for Haskell. It was build with the following requir
 \end{description}
 
 Pipes uses the type class \verb|Category| too keep the API simple and easy to use.
+
+Pipes provide the function \verb|for|. \verb|for| loops over a producer and applies an effect to every element yielded by the producer.  The type declaration of \verb|for| is
+\begin{program}
+\begin{verbatim}
+for :: Monad m => Producer b m r -> (b -> Producer   c m ()) -> Producer   c m r
+\end{verbatim}
+\caption{type of \verb|for|}
+\end{program}
+
+If we apply \verb|for| we get another producer. This means are able to compose several Producers.
 
 \section{Function composition}
 
