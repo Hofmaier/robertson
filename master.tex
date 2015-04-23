@@ -2,6 +2,7 @@
 \usepackage{amsmath}
 \usepackage{float}
 \usepackage{graphicx}
+\usepackage{url}
 \newfloat{program}{thp}{lop}
 \floatname{program}{Listing}
 \author{Lukas Hofmaier}
@@ -57,6 +58,20 @@ There many other useful type classes in the standard library.
 \item[Read] Types that can be convertet from a string.
 \end{description}
 
+\subsection{Polymorphism and type classes}
+\label{sec:polymorphism}
+
+There are two types of polymorphism in Haskell \cite{Cardelli}.
+\begin{description}
+\item[Parametric polymorphism] Refers to a type that contains type variable. For example the type of the function \verb|id| is 
+\begin{verbatim}
+id:: a -> a
+\end{verbatim}
+The \verb|id| function can be used with any type. There are no constraints. At compile time the type variable are substituted with a concrete type. For example
+\verb|Char -> Char|.
+\item[Ad-hoc polymorphism] It's a synonym for function overloading or operator overloading. Polymorphic functions can be applied to types with different types. A polymorphic function uses different definitions (implementations) depending on the types of the arguments. 
+\end{description}
+
 \subsection{Functor}
 \label{sec:functor}
 
@@ -107,6 +122,8 @@ This is the same as \verb|fmap (g . h) = fmap g (fmap h)|
 
 If we can prove that a type satisfies these laws, we can make assumptions about how the the type will act. And we know that \verb|fmap| only maps the function over the functor. It will not change the structure or the context of the functor.
 
+If we know, that a type satisfy the laws, we are able to deduce further properties for our own types. All type class instances in the standard library satisfy the laws \cite{yorgey}.
+
 \begin{figure}
   \centering
 \begin{verbatim}
@@ -116,6 +133,8 @@ fmap (g . h) = fmap g . fmap h
   \caption{The Functor laws}
   \label{fig:functorlaws}
 \end{figure}
+
+
 
 \section{Equational Reasoning}
 \label{sec:equationalreasoning}
@@ -163,22 +182,155 @@ In order to check if the property \ref{eq:reverse_prop} for the given input hold
 
 Equational reasoning isn't a method only used in programming. Equational reasoning is the process of substituting expressions. With equational reasoning we are able to show that certain properties hold.
 For example, it's possible to show that
+
 \begin{equation}
   \label{eq:sum}
   (x+a)(x+b) = x^2 + (a+b)x+ab
 \end{equation}
-is true. To show the equality we have to only have to substitute the expression on the left-hand side with the help of the basic algebraic properties of numbers (commutative, associative, distributive).
+
+is true. To show the equality we have to only have to substitute the expression on the left-hand side with the help of the basic algebraic properties of numbers (commutative, associative, distributive) \cite{hutton}.
 
 A function definition in Haskell means that we can substitute the lefthand side. Hence, we can use reasoning about a Haskell program in the same way, we reason about mathematical expressions. With equational reasoning it's possible to deduce properties from definitions.
 
 For example, it's possible to show that 
+\begin{verbatim}
+length [x] == 1
+\end{verbatim}
+no matter what \verb|x| is.
+
+This article will only describe proofs with programs, which halts. An evaluation can go on forever.
+\begin{verbatim}
+f x = 1 + f x
+\end{verbatim}
+
+The value of the expression is undefined. The proofs in this article hold only for defined expressions and finite lists..
+
+Equational reasoning is usefull because
+\begin{itemize}
+\item it allows to verify propererties of a program.
+\item can be used to eliminate expensive function call while preserving behavior
+\end{itemize}
+
+\subsection{Proof by structural induction}
+\label{sec:induction}
+
+The technique proof by induction is often used to reason about programs that involve recursion. The principle of induction states that it is sufficient to prove a property $p$ for the base case and that $p$ is preserved by the inductive case.
+
+Proof by induction is similar to write a recursive function. Recursive functions use a base case (e.g. \verb|[]|, 0). 
+If we use structural induction we proof the base case.
+
+A recursive function definition we define \verb|f (x:xs)| and use \verb|f x| in the right-hand side. In the proof we show that $p(n+1)$ with the assumption $p(n)$.
+
+The pattern for structural induction for proofing a property can be use for list or algeraic data types with a recursice constructor (e.g. Tree).
+
+We use induction to prove the following property
+\begin{equation}
+  \label{eq:lengthprop}
+  \text{length (xs ++ ys)} = \text{(length xs) ++ (length ys)}
+\end{equation}
+
+The Prelude functions \verb|length| and \verb|(++)| are defined as follows:
 \begin{program}
+\begin{verbatim}
+length [] = 0
+length (x:xs) = 1 + length 
+\end{verbatim}
+\caption{Definition length function}
+\label{lst:lengthdefinition}  
 \end{program}
 
+\begin{program}
+\begin{verbatim}
+[] ++ xs = xs
+(x:xs) ++ ys = x:(xs++ys)
+\end{verbatim}
+\caption{Definition: ++ - function}
+\label{lst:catdefinition}  
+\end{program}
+
+First we have to show that property \ref{eq:lengthprop} holds for the base case. The base case, in this example, are the arguments \verb|[]| and a arbritrary list for \verb|ys|. It isn't necessary to replace \verb|ys| because, the definition of \verb|++| uses recursion over \verb|xs|. \verb|ys| will always be the same list.
+In order to check if property \ref{eq:lengthprop} holds for the base case, we replace \verb|xs| with  \verb|[]|, leading to
+
+\begin{program}
+\begin{verbatim}
+length ([] ++ ys) = length [] + length ys
+\end{verbatim}
+\caption{Base case}
+\label{lst:equality1}
+\end{program}
+
+We will evaluate the expression on the left-hand side and the right and side separately.
+
+The left-hand side evaluates to
+\begin{program}
+\begin{verbatim}
+length ([] ++ ys) -- apply ++
+length ys
+\end{verbatim}
+\end{program}
+
+The right-hand side evaluates to 
+\begin{program}
+\begin{verbatim}
+length [] + length ys     -- apply length []
+0 + length ys
+length ys
+\end{verbatim}
+\end{program}
+
+Both sides of the function definition in Listing \ref{lst:equality1} are equal. Hence, property \ref{eq:lengthprop} holds for the empty list, our base case.
+
+Now we have to prove the induction step. We have to prove that
+\begin{equation}
+  \label{eq:induction}
+    \text{length ((x:xs) ++ ys)} = \text{(length (x:xs)) ++ (length ys)}
+\end{equation}
+
+with the assumption (induction hypothesis)
+\begin{equation}
+  \label{eq:induction_hypothesis}
+      \text{length (xs ++ ys)} = \text{(length xs) ++ (length ys)}
+\end{equation}
+
+Again, we evaluate the the left hand side of equation \ref{eq:induction}.
+
+\begin{program}
+\begin{verbatim}
+length ((x:xs) ++ ys)}     --apply definition of ++
+length (x:(xs ++ ys))      --apply definition of length
+1 + length (xs ++ ys)      --use induction hypothesis
+1 + length xs + length ys
+\end{verbatim}
+\end{program}
+
+If we evaluate the right-hand side of the induction step in equation  \ref{eq:induction} we get:
+\begin{program}
+\begin{verbatim}
+length (x:xs) + length ys    -- apply definition of length
+1 + length xs + length ys
+\end{verbatim}
+\end{program}
+
+The last listing shows, that the equation \ref{eq:induction} follows from the induction hypothesis in equation \ref{eq:induction_hypothesis}. This completes the induction step and therefore the proof itself.
+
+\section{Pipes}
+\label{sec:pipes}
+
+Pipes is a streaming library for Haskell. It was build with the following requirements \cite{gonzales13}.
+\begin{description}
+\item[Effects] Streams has to be effectful
+\item[Streaming] Processing in constant memory
+\item[Composability] Modules have to be composable
+\end{description}
+
+Pipes uses the type class \verb|Category| too keep the API simple and easy to use.
+
 \section{Function composition}
+
 \label{sec:functioncomposition}
 
 Function composition in mathematics is defined as
+
 \begin{equation}
   \label{eq:functioncomposition}
   (f \circ g)(x) = f(g(x))
