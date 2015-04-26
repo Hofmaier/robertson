@@ -323,12 +323,28 @@ Pipes is a streaming library for Haskell. It was build with the following requir
 
 Pipes uses the type class \verb|Category| too keep the API simple and easy to use.
 
-Pipes provide the function \verb|for|. \verb|for| loops over a producer and applies an effect to every element yielded by the producer.  The type declaration of \verb|for| is
+This article will descipe a part of the library with an example.
+
+First we need a input stream, that emits values. Input streams are have the type 
+\verb|Producer a m ()|.
+Listing \ref{lst:simpleproducer} show a simple Producer. It emits the integers 1,2 and 3. It is also possible to create producers for effectful streams. We use the simple producer from Listing \ref{lst:simpleproducer} for simplicity reasons.
+
 \begin{program}
 \begin{verbatim}
-for :: Monad m => Producer b m r -> (b -> Producer   c m ()) -> Producer   c m r
+produceints123 :: Producer Int IO ()
+produceints123 = each [1,2,3]
 \end{verbatim}
-\caption{type of \verb|for|}
+\caption{Simple Producer}
+\label{lst:simpleproducer}
+\end{program}
+
+Pipes provide the function \verb|for| to consume a producer. 
+\verb|for producer body| loops over the \verb|producer| and applies a the transformation defined in \verb|body| to every element yielded by the producer. If the body is of type \verb|Effect| it return an \verb|Effect|. If body is of type \verb|Producer| a \verb|Producer| is returned. The type declaration of \verb|for| is
+\begin{program}
+\begin{verbatim}
+for::Monad m=>Producer b m r->(b -> Producer c m ())->Producer c m r
+\end{verbatim}
+\caption{type of for}
 \end{program}
 
 If we apply \verb|for| we get another producer. This means are able to compose several Producers.
