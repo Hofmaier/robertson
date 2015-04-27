@@ -1,4 +1,4 @@
-\documentclass[twoside, a4paper]{article}
+\documentclass[twoside, a4paper, 12pt]{article}
 \usepackage{amsmath}
 \usepackage{float}
 \usepackage{graphicx}
@@ -15,7 +15,7 @@
 \section{Introduction}
 \label{sec:intro}
 
-Formal verification is a tool use for software application with the aim of providing a high reliability. The first formally verfified microkernel, seL4 was verified using Haskell. Haskell was used because programmers can reason about the source code \cite{Klein09}. Correctness is specified in form of equations. The source code must satisfy this equations. Programmers can use equational reasoning to verify the correctness of these equations.
+Formal verification is a tool use for software application with the aim of providing a high reliability. The first formally verified micro kernel, seL4 was verified using Haskell. Haskell was used because programmers can reason about the source code \cite{Klein09}. Correctness is specified in form of equations. The source code must satisfy this equations. Programmers can use equational reasoning to verify the correctness of these equations.
 Purely functional programming languages are easier to reason about as imperative or object-oriented languages.
 
 \section{Type classes}
@@ -69,7 +69,7 @@ id:: a -> a
 \end{verbatim}
 The \verb|id| function can be used with any type. There are no constraints. At compile time the type variable are substituted with a concrete type. For example
 \verb|Char -> Char|.
-\item[Ad-hoc polymorphism] It's a synonym for function overloading or operator overloading. Polymorphic functions can be applied to types with different types. A polymorphic function uses different definitions (implementations) depending on the types of the arguments. If a type can be converted to a string, it can be given the type class \verb|Show|. The type \verb|Person| has to implement \verb|show|. Appying \verb|show| to \verb|Person| results in a diffent behavior then applying \verb|show| to an \verb|Int|.
+\item[Ad-hoc polymorphism] It's a synonym for function overloading or operator overloading. Polymorphic functions can be applied to types with different types. A polymorphic function uses different definitions (implementations) depending on the types of the arguments. If a type can be converted to a string, it can be given the type class \verb|Show|. The type \verb|Person| has to implement \verb|show|. Applying \verb|show| to \verb|Person| results in a different behavior then applying \verb|show| to an \verb|Int|.
 \end{description}
 
 \subsection{Functor}
@@ -134,11 +134,80 @@ fmap (g . h) = fmap g . fmap h
   \label{fig:functorlaws}
 \end{figure}
 
+\subsection{Applicative Functor}
+\label{sec:applicatives}
+
+The \verb|Applicative| type class encapsulates the following idea. What if you have a function wrapped in a \verb|Functor| (e.g \verb|Maybe (Int -> Int -> Int)|) and you want to apply the function to another functor. 
+
+The \verb|Applicative| type class is defined as follows.
+\begin{verbatim}
+class (Functor f) => Applicative f where
+    pure :: a -> f a
+    (<*>) :: f (a -> b) -> f a -> f b
+\end{verbatim}
+
+Applicatives are enhanced functors. They are able to map a function encapsulatet in a functor over another functor.
+
+\subsection{Monoid}
+\label{sec:monoid}
+
+Some types, let's say \verb|a|, have a binary function with the type declaration \verb|a -> a -> a|. 
+
+The type \verb|a| has a value that serves as identity for the given function. For example 1 is the identity for the multiplication. Multiplicaiton with an other numer $x$ results always in $x$.
+
+Several value of type \verb|a| can always be reduces to a single value. It doesn't matter in which order we apply the function, the result is always the same. This is called associativity.
+
+If type \verb|a| has this behavior, it's a monoid and it can be an instance of the \verb|Monoid| type class.
+
+The \verb|Monoid| type class is define as follows:
+\begin{verbatim}
+class Monoid m where
+    mempty :: m
+    mappend :: m -> m -> m
+    mconcat :: [m] -> m
+    mconcat = foldr mappend mempty
+\end{verbatim}
+
+The \verb|Monoid| type class is define in \verb|Data.Monoid| \cite{monoid}. 
+
+From the type class definition we see that concrete type can be made instances of \verb|Monoid|. 
+
+\verb|mempty| return the identity value. The binary function is \verb|mappend|. It takes to values of the same type and returns another value of that type. \verb|mconcat| takes a list of monoids and reduces them \verb|mappend| to a single value, applying mappend. It has a default implementation.
+
+When making monoid instances, we need to make sure that \verb|mempty| acts like the identity with respect to the \verb|mappend| function and \verb|mappend| must be assocative. There are three monoid laws
+
+\begin{enumerate}
+\item \verb|mappend mempty x = x|
+\item \verb|mappend x mempty = x|
+\item \verb|(x `mappend y) `mappend z = x `mappend (y `mappend z)|
+\end{enumerate}
+
+The following Haskell types are \verb|Monoid| instances
+\begin{description}
+\item[List] The empty list \verb|[]| and \verb|++| (concatenation) form a monoid.
+\item[Product and Sum] Numers can be monoid with respect to multiplication or addidion. There are two monoid instances for \verb|Num|.
+\item[Maybe] Can also be an instance of \verb|Monoid|.
+\end{description}
+
+An interesting property of the \verb|Applicative| type class with respect to the monoid type class is, if \verb|f| is an \verb|Applicative| and \verb|m| is a \verb|Monoid|, \verb|f b| is also a \verb|Monoid|. This is because we can make an \verb|Applicative| with the given property an instance of \verb|Monoid|.
+\begin{program}
+\begin{verbatim}
+instance (Applicative f, Monoid b) => Monoid (f b) where
+    mempty = pure mempty
+
+    mappend = liftA2 mappend
+\end{verbatim}
+\label{lst:applicative2monoid}
+\end{program}
+
+
+As \verb|f| is an applicative, it implements \verb|pure|. The \verb|mempty| function returns the identity value of \verb|b| in a default context. \verb|liftA2| encapsulates the \verb|mappend| function in a applicative functor.
+
 \section{Equational Reasoning}
 \label{sec:equationalreasoning}
 
 Some programmers care about the correctness of their software. It's hard to write a correct program at the first attempt. 
-Hence, verification of a program improves the reliability of the software.
+Hence, verification of a program improves the reliability of the software. Verification is process of checking if the software does the specification demands. This means that the specification is required. In the case of implementing the type classes of section \ref{sec:typeclasses}, the specification is defined in form of laws. The following section will describe the verification method equational reasoning. We will use equational reason in section \ref{sec:example} to show that the monoid laws hold for a given type.
 
 There are several ways to check the behavior of a program. 
 We will describe the difference with a simple example.
@@ -148,10 +217,10 @@ If we apply \verb|reverse| to times on the same list \verb|xs| we get back the o
   \label{eq:reverse_prop}
 \text{reverse} (\text{reverse} xs) == xs  
 \end{equation}
-This boolean expression formulates a desired property. 
+This Boolean expression formulates a desired property. 
 
 \begin{description}
-\item[Testing] Run the program with selected input and check if it behaves as expected. Listing \ref{lst:testfunction} gives a test function of the propery \ref{eq:reverse_prop} for the input \verb|[1,2,3]|.
+\item[Testing] Run the program with selected input and check if it behaves as expected. Listing \ref{lst:testfunction} gives a test function of the property \ref{eq:reverse_prop} for the input \verb|[1,2,3]|.
   \label{fig:test}
 \begin{program}
 \begin{verbatim}
@@ -167,7 +236,7 @@ test_reverse xs = reverse (reverse xs) == xs
 In order to check if the property \ref{eq:reverse_prop} for the given input holds, we have to run the program.
  An advantage of this method is, that the programmer hasn't to define general properties. It's easier to think about a concrete input and the corresponding output.
 
-\item[Property-based testing] The input for the test program is genereted randomly. The test are executed by a tool (e.g. Quickcheck)
+\item[Property-based testing] The input for the test program is generated randomly. The test are executed by a tool (e.g. Quickcheck)
 \item[Proof] A Proof can show that a property holds in all circumstances. With the definition of the function \verb|reverse| it's possible to proof that property \ref{eq:reverse_prop} always holds. 
 \end{description}
 
@@ -188,7 +257,7 @@ For example, it's possible to show that
 
 is true. To show the equality we have to only have to substitute the expression on the left-hand side with the help of the basic algebraic properties of numbers (commutative, associative, distributive) \cite{hutton}.
 
-A function definition in Haskell means that we can substitute the lefthand side. Hence, we can use reasoning about a Haskell program in the same way, we reason about mathematical expressions. With equational reasoning it's possible to deduce properties from definitions.
+A function definition in Haskell means that we can substitute the left-hand side. Hence, we can use reasoning about a Haskell program in the same way, we reason about mathematical expressions. With equational reasoning it's possible to deduce properties from definitions.
 
 For example, it's possible to show that 
 \begin{verbatim}
@@ -203,9 +272,9 @@ f x = 1 + f x
 
 The value of the expression is undefined. The proofs in this article hold only for defined expressions and finite lists..
 
-Equational reasoning is usefull because
+Equational reasoning is use-full because
 \begin{itemize}
-\item it allows to verify propererties of a program.
+\item it allows to verify properties of a program.
 \item can be used to eliminate expensive function call while preserving behavior
 \end{itemize}
 
@@ -219,7 +288,7 @@ If we use structural induction we proof the base case.
 
 A recursive function definition we define \verb|f (x:xs)| and use \verb|f x| in the right-hand side. In the proof we show that $p(n+1)$ with the assumption $p(n)$.
 
-The pattern for structural induction for proofing a property can be use for list or algeraic data types with a recursice constructor (e.g. Tree).
+The pattern for structural induction for proofing a property can be use for list or algebraic data types with a recursive constructor (e.g. Tree).
 
 We use induction to prove the following property
 \begin{equation}
@@ -246,7 +315,7 @@ length (x:xs) = 1 + length
 \label{lst:catdefinition}  
 \end{program}
 
-First we have to show that property \ref{eq:lengthprop} holds for the base case. The base case, in this example, are the arguments \verb|[]| and a arbritrary list for \verb|ys|. It isn't necessary to replace \verb|ys| because, the definition of \verb|++| uses recursion over \verb|xs|. \verb|ys| will always be the same list.
+First we have to show that property \ref{eq:lengthprop} holds for the base case. The base case, in this example, are the arguments \verb|[]| and a arbitrary list for \verb|ys|. It isn't necessary to replace \verb|ys| because, the definition of \verb|++| uses recursion over \verb|xs|. \verb|ys| will always be the same list.
 In order to check if property \ref{eq:lengthprop} holds for the base case, we replace \verb|xs| with  \verb|[]|, leading to
 
 \begin{program}
@@ -311,7 +380,67 @@ length (x:xs) + length ys    -- apply definition of length
 
 The last listing shows, that the equation \ref{eq:induction} follows from the induction hypothesis in equation \ref{eq:induction_hypothesis}. This completes the induction step and therefore the proof itself.
 
-\section{Pipes}
+\subsection{Example proof for Monoid Laws}
+\label{sec:example}
+
+The following example is taken from a blogpost of Gabriel Gonzales \cite{gonzales14}. 
+
+Suppose we want to build a plugin system, that uses monoids to add additional functionality to system. If we can prove that the plugins satisfy the monoid laws, we can combine them, using the monoid function \verb|<>| and we can apply them without concerning about the order of evaluation. In addition they will behave as expected. 
+
+Listing \ref{lst:plugin} show use of the plugin. The \verb|logto| function is a plugin. The program will read a character \verb|c| from the command line and apply the given plugin to \verb|c|.
+
+\begin{program}
+\begin{verbatim}
+main = do
+    handleChar <- logto
+    c <- getChar
+    handleChar c
+\end{verbatim}
+\label{lst:plugin}
+\caption{main for plugin system}
+\end{program}
+
+The \verb|logTo| function is shown in Listing \ref{lst:logto}. Its of type \verb|IO(Char->IO())|. 
+
+\begin{program}
+\begin{verbatim}
+logTo :: IO ( Char -> IO ())
+logTo = do
+    handle <- openFile "log.txt" WriteMode
+    return (hPutChar handle)
+\end{verbatim}
+\label{lst:logto}
+\caption{main for plugin system}
+\end{program}
+
+The plugins are of type \verb|IO ( Char -> IO ())|. We have to prove the monoid laws from section \ref{sec:monoid} for the type \verb|IO ( Char -> IO ())|.
+As show in listing \ref{lst:applicative2monoid}, applicative can be a monoid if the encapsulated type is a monoid. To prove that \verb|IO ( Char -> IO ())| is a monoid \verb|IO| has to be an applicative and \verb|Char -> IO ()| has to be a monoid.
+
+We can implement a monoid instance for the type \verb|a -> b| as follows:
+\begin{verbatim}
+instance Monoid b => Monoid (a -> b) where
+    mempty = pure mempty
+
+    mappend = liftA2 mappend
+\end{verbatim}
+
+With this implementation the type \verb|b| of \verb|a -> b| has also to be a monoid. In our example that is the type \verb|IO ()|. The standard library provides a monoid instance for \verb|()|. In this article we will assume that the implemention of the standard library satisfies the monoid laws.
+
+To prove that \verb|IO ()| is an Monoid, we refer again to the monoid implemenation of listing \ref{lst:applicative2monoid}.
+
+To prove the monoid laws for the type \verb|IO ( Char -> IO ())| we use a property of the \verb|Applicative| type class .
+
+\begin{verbatim}
+instance Applicative IO where
+    pure = return
+
+    x <*> y = do
+        f <- x
+        a <- y
+        return (f a)
+\end{verbatim}
+
+\section{Pipes: A real world example}
 \label{sec:pipes}
 
 Pipes is a streaming library for Haskell. It was build with the following requirements \cite{gonzales13}.
@@ -339,15 +468,74 @@ produceints123 = each [1,2,3]
 \end{program}
 
 Pipes provide the function \verb|for| to consume a producer. 
-\verb|for producer body| loops over the \verb|producer| and applies a the transformation defined in \verb|body| to every element yielded by the producer. If the body is of type \verb|Effect| it return an \verb|Effect|. If body is of type \verb|Producer| a \verb|Producer| is returned. The type declaration of \verb|for| is
+\verb|for| \verb|producer| \verb|body| loops over the \verb|producer| and applies a the transformation defined in \verb|body| to every element yielded by the producer. If the body is of type \verb|Effect| it return an \verb|Effect|. If body is of type \verb|Producer| a \verb|Producer| is returned. The type declaration of \verb|for| 
 \begin{program}
 \begin{verbatim}
-for::Monad m=>Producer b m r->(b -> Producer c m ())->Producer c m r
+for::Monad m=>
+Producer b m r
+-> (b -> Producer c m ())
+-> Producer c m r
 \end{verbatim}
 \caption{type of for}
 \end{program}
 
-If we apply \verb|for| we get another producer. This means are able to compose several Producers.
+A value for the body, could be function, that takes \verb|Int| and returns producer \verb|Producer a IO ()|. Hence the type declarion is \verb|Int -> Producer a IO ()|. We implement a body, that prints the integers to the standard input (strictly speaking this value is an effect of type \verb|Effect Int ()|. But \verb|Effect Int ()| is of type \verb|Producer Int IO () |).
+
+\begin{program}
+\begin{verbatim}
+print2stdout:: Int -> Effect IO ()
+print2stdout x = (lift . putStrLn . show ) x
+\end{verbatim}
+\caption{Definition of an effect, that prints to stdout}
+\label{lst:stdouteffect}
+\end{program}
+
+With the producer and the body we can define a \verb|Effect IO ()|
+\begin{verbatim}
+effect :: Effect IO ()
+effect = for produceints123 print2stdout
+\end{verbatim}
+
+Because the \verb|body| and of \verb|for| can be of type \verb|a -> Producer|, and the type of the return value is \verb|Producer|, it's possible to interleave several Producers.
+
+If we want to duplicate all element we write another body
+\begin{verbatim}
+duplicate :: Int -> Producer Int IO ()
+duplicate x = yield x >> yield x 
+\end{verbatim}
+
+We use \verb|for| to create a another producer. \verb|composed_producer| is a composition of \verb|produceints123| and \verb|duplicate|.
+\begin{verbatim}
+composed_producer :: Producer Int IO ()
+composed_producer = for produceints123 duplicate
+\end{verbatim}
+
+To compose \verb|composed_producer| with our \verb|print2stdout| effect, we apply the \verb|for| function
+
+\begin{verbatim}
+effect2 :: Effect IO ()
+effect2 = for composed_producer print2stdout
+\end{verbatim}
+
+In order to compose producers, the pipe library provides the \verb|~>| function. \verb|~>| is defined as follows:
+\begin{verbatim}
+(f ~> g) x = for (f x) g
+\end{verbatim}
+
+Hence we can write compose a body for \verb|for| like this:
+\begin{verbatim}
+composed_with_yield :: Int -> Effect IO ()
+composed_with_yield = duplicate ~> print2stdout
+\end{verbatim}
+
+Gabriel Gonzales proved that the \verb|~>| operator is associativ. It has the associativity property.
+
+\begin{verbatim}
+ -- Associativity
+ (f ~> g) ~> h = f ~> (g ~> h)
+\end{verbatim}
+
+Because the \verb|~>| operator is associativ, it doesnt matter in witch order the body is composed. The expected behavior is defined in term of cateory laws. It's possible to prove that the specified laws hold.
 
 \section{Function composition}
 
