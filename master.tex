@@ -137,6 +137,8 @@ fmap (g . h) = fmap g . fmap h
 \subsection{Applicative Functor}
 \label{sec:applicatives}
 
+Applicative functors are an abstract characterisation of an applicative style of effectful programming \cite{mcbride} \cite{control.applicative}
+
 The \verb|Applicative| type class encapsulates the following idea. What if you have a function wrapped in a \verb|Functor| (e.g \verb|Maybe (Int -> Int -> Int)|) and you want to apply the function to another functor. 
 
 The \verb|Applicative| type class is defined as follows.
@@ -147,6 +149,13 @@ class (Functor f) => Applicative f where
 \end{verbatim}
 
 Applicatives are enhanced functors. They are able to map a function encapsulatet in a functor over another functor.
+
+The following type are instances of the type class \verb|Applicative|
+
+\begin{itemize}
+\item Maybe
+\item IO
+\end{itemize}
 
 \subsection{Monoid}
 \label{sec:monoid}
@@ -185,7 +194,7 @@ When making monoid instances, we need to make sure that \verb|mempty| acts like 
 The following Haskell types are \verb|Monoid| instances
 \begin{description}
 \item[List] The empty list \verb|[]| and \verb|++| (concatenation) form a monoid.
-\item[Product and Sum] Numers can be monoid with respect to multiplication or addidion. There are two monoid instances for \verb|Num|.
+\item[Product and Sum] Numbers can be monoid with respect to multiplication or addidion. There are two monoid instances for \verb|Num|.
 \item[Maybe] Can also be an instance of \verb|Monoid|.
 \end{description}
 
@@ -198,10 +207,10 @@ instance (Applicative f, Monoid b) => Monoid (f b) where
     mappend = liftA2 mappend
 \end{verbatim}
 \label{lst:applicative2monoid}
+\caption{Applicative property}
 \end{program}
 
-
-As \verb|f| is an applicative, it implements \verb|pure|. The \verb|mempty| function returns the identity value of \verb|b| in a default context. \verb|liftA2| encapsulates the \verb|mappend| function in a applicative functor.
+As \verb|f| is an applicative, it implements \verb|pure|. The \verb|mempty| function returns the identity value of \verb|b| in a default context. \verb|liftA2| encapsulates the \verb|mappend| function in a applicative functor. It's possible to prove this property with equational reasoning.
 
 \section{Equational Reasoning}
 \label{sec:equationalreasoning}
@@ -413,10 +422,29 @@ logTo = do
 \caption{main for plugin system}
 \end{program}
 
-The plugins are of type \verb|IO ( Char -> IO ())|. We have to prove the monoid laws from section \ref{sec:monoid} for the type \verb|IO ( Char -> IO ())|.
-As show in listing \ref{lst:applicative2monoid}, applicative can be a monoid if the encapsulated type is a monoid. To prove that \verb|IO ( Char -> IO ())| is a monoid \verb|IO| has to be an applicative and \verb|Char -> IO ()| has to be a monoid.
+The plugins are of type \verb|IO ( Char -> IO ())|. We have to  prove that the monoid laws from section \ref{sec:monoid} hold for the type \verb|IO ( Char -> IO ())|.
+As mentioned in listing \ref{lst:applicative2monoid}, applicative can be a monoid if the encapsulated type is a monoid. To prove that \verb|IO ( Char -> IO ())| is a monoid, the type \verb|IO| has to be an applicative and \verb|Char -> IO ()| has to be a monoid. Hence \verb|Char -> IO ()| has to be a monoid.
 
-We can implement a monoid instance for the type \verb|a -> b| as follows:
+The type \verb|Monoid b => (a -> b)| is monoid instance implemented by the standard library \cite{monoid}, hence \verb|Char -> IO ()| is a monoid if \verb|IO ()| is a monoid
+
+According to property \ref{lst:applicative2monoid} \verb|IO ()| is a monoid if \verb|()| is a monoid.
+
+Here is what abstract of all the steps of the proof
+\begin{enumerate}
+\item show that  \verb|IO ( Char -> IO ())| is a monoid.
+\item prove that prpperty from \ref{lst:applicative2monoid} holds
+\item show that \verb|Char -> IO ()| is a monoid
+\item show that \verb|IO ()| is a monoid
+\item show that \verb|()| is a monoid
+\end{enumerate}
+
+With this implementation the type \verb|b| of \verb|a -> b| has also to be a monoid. In our example that is the type \verb|IO ()|. The standard library provides a monoid instance for \verb|()|. In this article we will assume that the implemention of the standard library satisfies the monoid laws.
+
+To prove that \verb|IO ()| is an Monoid, we refer again to the monoid implemenation of listing \ref{lst:applicative2monoid}. As stated in section \ref{sec:applicatives} \verb|IO| is an instance of \verb|Applicative|. Hence \verb|IO ()| is a \verb|Monoid|.
+
+Now we prove that \verb|Char -> IO ()| is a monoid.  is a monoid since \verb|IO ()| is a monoid.
+
+The monoid instance for the type \verb|a -> b| is implemented as follows:
 \begin{verbatim}
 instance Monoid b => Monoid (a -> b) where
     mempty = pure mempty
@@ -424,21 +452,8 @@ instance Monoid b => Monoid (a -> b) where
     mappend = liftA2 mappend
 \end{verbatim}
 
-With this implementation the type \verb|b| of \verb|a -> b| has also to be a monoid. In our example that is the type \verb|IO ()|. The standard library provides a monoid instance for \verb|()|. In this article we will assume that the implemention of the standard library satisfies the monoid laws.
 
-To prove that \verb|IO ()| is an Monoid, we refer again to the monoid implemenation of listing \ref{lst:applicative2monoid}.
-
-To prove the monoid laws for the type \verb|IO ( Char -> IO ())| we use a property of the \verb|Applicative| type class .
-
-\begin{verbatim}
-instance Applicative IO where
-    pure = return
-
-    x <*> y = do
-        f <- x
-        a <- y
-        return (f a)
-\end{verbatim}
+With property from listing \ref{lst:applicative2monoid} 
 
 \section{Pipes: A real world example}
 \label{sec:pipes}
