@@ -1,8 +1,9 @@
-\documentclass[twoside, a4paper, 12pt]{article}
+\documentclass[twoside, a4paper]{article}
 \usepackage{amsmath}
 \usepackage{float}
 \usepackage{graphicx}
 \usepackage{url}
+\usepackage{etaremune}
 \newfloat{program}{thp}{lop}
 \floatname{program}{Listing}
 \author{Lukas Hofmaier}
@@ -15,202 +16,16 @@
 \section{Introduction}
 \label{sec:intro}
 
-Formal verification is a tool use for software application with the aim of providing a high reliability. The first formally verified micro kernel, seL4 was verified using Haskell. Haskell was used because programmers can reason about the source code \cite{Klein09}. Correctness is specified in form of equations. The source code must satisfy this equations. Programmers can use equational reasoning to verify the correctness of these equations.
-Purely functional programming languages are easier to reason about as imperative or object-oriented languages.
+Type classes are a concept to describe behavior. In addition, they are excpectet to exhibit certain properties. This properties are called laws. 
+Laws allow the programmer to make assumption about the behavior and reason about the code. We can rely on certain properties like associativity for example.
 
-\section{Type classes}
-\label{sec:typeclasses}
+The compiler doesn't verifiy if a given property holds. We have to verify the laws with formal verfification. Formal verification is a tool use for software application with the aim of providing a high reliability. The first formally verified micro kernel, seL4 was verified using Haskell. Haskell was used because programmers can reason about the source code \cite{Klein09}. Correctness is specified in form of equations. The source code must satisfy this equations. Programmers can use equational reasoning to verify the correctness of these equations.
 
-A type class is like an interface. It defines behavior of a type. A type becomes an instance of a type class if it implements the functions of the type class. When a type class implements a type class, the type provides the functions, which the type class defines.
-The concept of a type class is explained with the function \verb|show| from the \verb|Prelude|-Library. \verb|show| converts a given type into a character string.
-\begin{verbatim}
-show :: Show a => a -> String
-\end{verbatim}
-The \verb|Show a| before the \verb|=>| is a class constraint. \verb|a| is a type variable. The signature means that \verb|show| takes something that implements the type class \verb|Show| and returns a string. \verb|Show| is a type class. 
-Any type that implements \verb|Show| can be converted to a character string. Types in this class are \verb|Bool|, \verb|Char|, \verb|Int|, \verb|Float|, \verb|Double| etc.
+Purely functional programming languages are easier to reason about as imperative or object-oriented languages. All examples in this articel a written in Haskell.
 
-A type class is defined as follows: For example \verb|Show|:
-\begin{verbatim}
-class Show a where
-    show :: a -> String
-\end{verbatim}
-The keyword \verb|class| defines a new type class. \verb|a| is the type variable. It can be replaced with the type that implements the type class.
+In this article we first describe type classes with a few examples. Then we show that eqational reasoning can be used to verify properties of a haskell program. In a example we will prove that the monoid laws holds for new type. The next section shows that equational reasoning is used in a common library like pipes.
 
-Once we have a class we make types instances of that class. If we have a type \verb|Person| with an name and an email address:
-\begin{verbatim}
-data Person = Person { name :: String
-                       email :: String
-                     }
-\end{verbatim}
-
-To print out a person the type \verb|Person| has to be an instance of \verb|Show|.
-
-\begin{verbatim}
-instance Show Person where
-    show (Person name _) = name
-\end{verbatim}
-
-There many other useful type classes in the standard library.
-
-\begin{description}
-\item[Ord] Types with an order relation implement \verb|Ord|.
-\item[Eq] For types that can be equated.
-\item[Read] Types that can be convertet from a string.
-\end{description}
-
-\subsection{Polymorphism and type classes}
-\label{sec:polymorphism}
-
-There are two types of polymorphism in Haskell \cite{Cardelli}.
-\begin{description}
-\item[Parametric polymorphism] Refers to a type that contains type variable. For example the type of the function \verb|id| is 
-\begin{verbatim}
-id:: a -> a
-\end{verbatim}
-The \verb|id| function can be used with any type. There are no constraints. At compile time the type variable are substituted with a concrete type. For example
-\verb|Char -> Char|.
-\item[Ad-hoc polymorphism] It's a synonym for function overloading or operator overloading. Polymorphic functions can be applied to types with different types. A polymorphic function uses different definitions (implementations) depending on the types of the arguments. If a type can be converted to a string, it can be given the type class \verb|Show|. The type \verb|Person| has to implement \verb|show|. Applying \verb|show| to \verb|Person| results in a different behavior then applying \verb|show| to an \verb|Int|.
-\end{description}
-
-\subsection{Functor}
-\label{sec:functor}
-
-Functor is a type class for types, which can be mapped over. 
-
-The type class declaration is shown in Listing \ref{fig:functordeclaration}.
-The \verb|f| in the declaration is a type class constructor. Only type constructor can implement \verb|Functor| (\verb|Maybe|, \verb|[]|).
-
-Functor defines all instances must implement the function \verb|fmap|.
-\begin{figure}
-  \centering
-\begin{verbatim}
-class Functor f where
-    fmap :: (a -> b) -> f a -> f b
-\end{verbatim}
-  \caption{Functor type class declaration}
-  \label{fig:functordeclaration}
-\end{figure}
-
-\verb|fmap| takes any function \verb|a -> b| and a value of type \verb|f a| and returns a value of type \verb|f b|. 
-If \verb|f| is of type \verb|Maybe| \verb|Int| and the function of type \verb|Int -> String|, \verb|fmap| returns \verb|Maybe String|. 
-
-\verb|fmap| applies a function to a value without altering its structure or context.
-
-Instances of \verb|Functor| are:
-
-\begin{description}
-\item[List] \verb|map| for lists for is the same as \verb|fmap|.
-\item[Either] \verb|Either e a| is a container. \verb|fmap| applies a function to \verb|a|.
-\end{description}
-
-Instances of the \verb|Functor| type class are expected to exhibit certain kinds of properties. This properties are called the functor laws.
-The Haskell Compiler doesn't detect violations of the expected laws. All Functor instances in the standard library obey these laws.
-
-A Functor instance has to satisfy the following laws \cite{Marlow_2010}.
-
-\begin{description}
-\item[Law 1] Mapping the identity function over a functor value, will not change the functor value. Formally
-\begin{verbatim}
-fmap id  ==  id
-\end{verbatim}
-\item[Law 2] The second law states that it doesn't matter if we compose two functions and them map them over a functor or if we first map one function over the functor and then map the other function. Formally
-\begin{verbatim}
-fmap (g . h) = fmap g . fmap h
-\end{verbatim}
-This is the same as \verb|fmap (g . h) = fmap g (fmap h)|
-\end{description}
-
-If we can prove that a type satisfies these laws, we can make assumptions about how the the type will act. And we know that \verb|fmap| only maps the function over the functor. It will not change the structure or the context of the functor.
-
-If we know, that a type satisfy the laws, we are able to deduce further properties for our own types. All type class instances in the standard library satisfy the laws \cite{yorgey}.
-
-\begin{figure}
-  \centering
-\begin{verbatim}
-fmap id = id
-fmap (g . h) = fmap g . fmap h
-\end{verbatim}
-  \caption{The Functor laws}
-  \label{fig:functorlaws}
-\end{figure}
-
-\subsection{Applicative Functor}
-\label{sec:applicatives}
-
-Applicative functors are an abstract characterisation of an applicative style of effectful programming \cite{mcbride} \cite{control.applicative}
-
-The \verb|Applicative| type class encapsulates the following idea. What if you have a function wrapped in a \verb|Functor| (e.g \verb|Maybe (Int -> Int -> Int)|) and you want to apply the function to another functor. 
-
-The \verb|Applicative| type class is defined as follows.
-\begin{verbatim}
-class (Functor f) => Applicative f where
-    pure :: a -> f a
-    (<*>) :: f (a -> b) -> f a -> f b
-\end{verbatim}
-
-Applicatives are enhanced functors. They are able to map a function encapsulatet in a functor over another functor.
-
-The following type are instances of the type class \verb|Applicative|
-
-\begin{itemize}
-\item Maybe
-\item IO
-\end{itemize}
-
-\subsection{Monoid}
-\label{sec:monoid}
-
-Some types, let's say \verb|a|, have a binary function with the type declaration \verb|a -> a -> a|. 
-
-The type \verb|a| has a value that serves as identity for the given function. For example 1 is the identity for the multiplication. Multiplicaiton with an other numer $x$ results always in $x$.
-
-Several value of type \verb|a| can always be reduces to a single value. It doesn't matter in which order we apply the function, the result is always the same. This is called associativity.
-
-If type \verb|a| has this behavior, it's a monoid and it can be an instance of the \verb|Monoid| type class.
-
-The \verb|Monoid| type class is define as follows:
-\begin{verbatim}
-class Monoid m where
-    mempty :: m
-    mappend :: m -> m -> m
-    mconcat :: [m] -> m
-    mconcat = foldr mappend mempty
-\end{verbatim}
-
-The \verb|Monoid| type class is define in \verb|Data.Monoid| \cite{monoid}. 
-
-From the type class definition we see that concrete type can be made instances of \verb|Monoid|. 
-
-\verb|mempty| return the identity value. The binary function is \verb|mappend|. It takes to values of the same type and returns another value of that type. \verb|mconcat| takes a list of monoids and reduces them \verb|mappend| to a single value, applying mappend. It has a default implementation.
-
-When making monoid instances, we need to make sure that \verb|mempty| acts like the identity with respect to the \verb|mappend| function and \verb|mappend| must be assocative. There are three monoid laws
-
-\begin{enumerate}
-\item \verb|mappend mempty x = x|
-\item \verb|mappend x mempty = x|
-\item \verb|(x `mappend y) `mappend z = x `mappend (y `mappend z)|
-\end{enumerate}
-
-The following Haskell types are \verb|Monoid| instances
-\begin{description}
-\item[List] The empty list \verb|[]| and \verb|++| (concatenation) form a monoid.
-\item[Product and Sum] Numbers can be monoid with respect to multiplication or addidion. There are two monoid instances for \verb|Num|.
-\item[Maybe] Can also be an instance of \verb|Monoid|.
-\end{description}
-
-An interesting property of the \verb|Applicative| type class with respect to the monoid type class is, if \verb|f| is an \verb|Applicative| and \verb|m| is a \verb|Monoid|, \verb|f b| is also a \verb|Monoid|. This is because we can make an \verb|Applicative| with the given property an instance of \verb|Monoid|.
-\begin{program}
-\begin{verbatim}
-instance (Applicative f, Monoid b) => Monoid (f b) where
-    mempty = pure mempty
-
-    mappend = liftA2 mappend
-\end{verbatim}
-\label{lst:applicative2monoid}
-\caption{Applicative property}
-\end{program}
-
-As \verb|f| is an applicative, it implements \verb|pure|. The \verb|mempty| function returns the identity value of \verb|b| in a default context. \verb|liftA2| encapsulates the \verb|mappend| function in a applicative functor. It's possible to prove this property with equational reasoning.
+\input{typeclass}
 
 \section{Equational Reasoning}
 \label{sec:equationalreasoning}
@@ -429,31 +244,64 @@ The type \verb|Monoid b => (a -> b)| is monoid instance implemented by the stand
 
 According to property \ref{lst:applicative2monoid} \verb|IO ()| is a monoid if \verb|()| is a monoid.
 
-Here is what abstract of all the steps of the proof
+Here is an overview of all the steps of the proof:
 \begin{enumerate}
+\item prove that property from \ref{lst:applicative2monoid} holds.
 \item show that  \verb|IO ( Char -> IO ())| is a monoid.
-\item prove that prpperty from \ref{lst:applicative2monoid} holds
 \item show that \verb|Char -> IO ()| is a monoid
 \item show that \verb|IO ()| is a monoid
 \item show that \verb|()| is a monoid
 \end{enumerate}
 
-With this implementation the type \verb|b| of \verb|a -> b| has also to be a monoid. In our example that is the type \verb|IO ()|. The standard library provides a monoid instance for \verb|()|. In this article we will assume that the implemention of the standard library satisfies the monoid laws.
+We show the required properties in reversed order.
 
-To prove that \verb|IO ()| is an Monoid, we refer again to the monoid implemenation of listing \ref{lst:applicative2monoid}. As stated in section \ref{sec:applicatives} \verb|IO| is an instance of \verb|Applicative|. Hence \verb|IO ()| is a \verb|Monoid|.
-
-Now we prove that \verb|Char -> IO ()| is a monoid.  is a monoid since \verb|IO ()| is a monoid.
-
-The monoid instance for the type \verb|a -> b| is implemented as follows:
+\begin{etaremune}
+\item The standard library provides a monoid instance for \verb|()| \cite{monoid}. In this article we will believe the farytale of abstraction and assume that the implemention of the standard library satisfies the monoid laws.
+\item \verb|IO()| is a monoid, because \verb|IO| is an applicative and \verb|()| is a monoid if property from listing \ref{lst:applicative2monoid} holds.
+\item Functions (functions have type \verb|(->) r|) are an instance of \verb|Applicative|. The applicative instance is defined as follows:
 \begin{verbatim}
 instance Monoid b => Monoid (a -> b) where
     mempty = pure mempty
 
     mappend = liftA2 mappend
 \end{verbatim}
+ \verb|Char->IO()| is a monoid because \verb|(->)Char| is a applicative and \verb|IO ()| is a monoid if property from listing \ref{lst:applicative2monoid} holds.
+\item \verb|IO(Char->IO())| is a monoid because \verb|IO| is an applicative and \verb|Char->IO()| is a monoid if property from listing \ref{lst:applicative2monoid} holds.
+\item  We can prove the property from \ref{lst:applicative2monoid} with equational reasoning.
+\end{etaremune} 
 
+The left identity law of the monoid type class demands that:
+\begin{verbatim}
+mappend mempty x = x
+\end{verbatim}
 
-With property from listing \ref{lst:applicative2monoid} 
+\begin{verbatim}
+mappend mempty x
+
+-- mappend = liftA2 mappend  
+= liftA2 mappend mempty x
+
+-- mempty = pure mempty   
+= liftA2 mappend (pure mempty) x
+
+-- liftA2 f x y = (pure f <*> x) <*> y
+= (pure mappend <*> pure mempty) <*> x
+
+-- Applicative law: pure f <*> pure x = pure (f x)
+= pure (mappend mempty) <*> x
+
+-- transform mappend mempty to lambda
+= pure (\a -> mappend mempty a) <*> x
+
+-- mappend mempty x = x
+= pure (\a -> a) <*> x
+
+-- id = \x -> x
+= pure id <*> x
+
+-- Applicative law: pure id <*> v = v
+= x
+\end{verbatim}
 
 \section{Pipes: A real world example}
 \label{sec:pipes}
