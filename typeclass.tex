@@ -210,7 +210,14 @@ When making monoid instances, we need to make sure that \verb|mempty| acts like 
 \item \verb|(x `mappend y) `mappend z = x `mappend (y `mappend z)|
 \end{enumerate}
 
-There is a useful property of the \verb|Applicative| type class with respect to the \verb|Monoid| type class: If \verb|f| is an \verb|Applicative| and \verb|m| is a \verb|Monoid|, \verb|f b| is also a \verb|Monoid|. If a type is part of the \verb|Applicative| we can create a \verb|Monoid| instance with the implementation in listing \ref{lst:applicative2monoid}.
+There is a useful property of the \verb|Applicative| type class with respect to the \verb|Monoid| type class: If \verb|f| is an \verb|Applicative| and \verb|m| is a \verb|Monoid|, \verb|f b| is also a \verb|Monoid|. If a type is part of the \verb|Applicative| we can create a \verb|Monoid| instance with the implementation in listing \ref{lst:applicative2monoid}. Figure \ref{fig:applicative_monoid} illustrates the property.
+
+\begin{figure}
+  \centering
+     \includegraphics[width=0.9\textwidth]{applicative_monoid}
+  \caption{An Applicative that encapsulates a monoid is a monoid}
+  \label{fig:applicative_monoid}
+\end{figure}
 
 \begin{program}
 \begin{verbatim}
@@ -224,5 +231,7 @@ instance (Applicative f, Monoid b) => Monoid (f b) where
 \end{program}
 
 As \verb|f| is an applicative, it implements \verb|pure|. The \verb|mempty| function returns the identity value of \verb|b| in a default context. \verb|liftA2| is an utility function of \verb|Applicative|. It encapsulates the \verb|mappend| function in an applicative functor. 
+
+
 
 In section \ref{sec:example} we prove this property with equational reasoning and we use it to show that a type is part of \verb|Monoid|.
