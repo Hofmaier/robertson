@@ -230,7 +230,8 @@ instance (Applicative f, Monoid b) => Monoid (f b) where
 \caption{Applicative property}
 \end{program}
 
-As \verb|f| is an applicative, it implements \verb|pure|. The \verb|mempty| function returns the identity value of \verb|b| in a default context. \verb|liftA2| is an utility function of \verb|Applicative|. It encapsulates the \verb|mappend| function in an applicative functor. 
+\verb|mempty| is of type \verb|f b| . Hence \verb|pure mempty| has to be of type \verb|f b|.
+As \verb|f| is an applicative, it implements \verb|pure|. The type of \verb|pure| is \verb|a -> f a| (see \ref{sec:applicatives}). We call \verb|pure| with \verb|mempty|. When instatiated the type of \verb|pure| becomes \verb|b -> f b|.  We know that \verb|b| is part of \verb|Monoid| because of the type constraints. The compiler will use \verb|mempty| of \verb|b|.  \verb|liftA2| is an utility function of \verb|Applicative|. It encapsulates the \verb|mappend| function in an applicative functor. 
 
 
 
