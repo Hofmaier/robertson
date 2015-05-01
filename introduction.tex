@@ -1,15 +1,15 @@
 \section{Introduction}
 \label{sec:intro}
 
-Type classes are a concept to describe behavior. In addition, they are excpectet to exhibit certain properties. This properties are called laws. 
-Laws allow the programmer to make assumption about the behavior and reason about the code. We can rely on certain properties like associativity for example.
+Type classes are a concept to describe behavior. In addition, they exhibit certain properties. This properties are called laws. 
+Laws allow us to make assumption about the behavior of the program and reason about the code. Properties of existing code allow us to rely on expected behavior and deduce further properties for new code.
 
-The compiler doesn't verifiy if a given property holds. We have to verify the laws with formal verfification. Formal verification is a tool use for software application with the aim of providing a high reliability. The first formally verified micro kernel, seL4 was verified using Haskell. Haskell was used because programmers can reason about the source code \cite{Klein09}. Correctness is specified in form of equations. The source code must satisfy this equations. Programmers can use equational reasoning to verify the correctness of these equations.
+A compiler doesn't verify if a given property holds. It's in the responsibility of the programmer to check if the program behaves correctly. For most programmers it's hard to write a correct program at the first attempt. This leaves us with the question of how to verify the type class laws. There are several methods to verify software. In this article we will look at technique of equational reasoning to prove type class laws. 
 
-Purely functional programming languages are easier to reason about as imperative or object-oriented languages. All examples in this articel a written in Haskell.
+Equational reasoning is a formal method for software verification with the aim of providing a high reliability. 
+Correctness is specified in form of equations. The source code must satisfy this equations. 
 
-In this article we first describe type classes with a few examples. Then we show that eqational reasoning can be used to verify properties of a haskell program. In a example we will prove that the monoid laws holds for new type. The next section shows that equational reasoning is used in a common library like pipes.
+For example, the first formally verified micro kernel, seL4 was verified using formal verification. The programming language Haskell was used because it's easier to reason about a program written in a purely functional programming language, like Haskell, compared to a program written in a imperative or object-oriented language  \cite{Klein09}. 
 
+In this article we first describe type classes and the corresponding laws with a few examples. Then we show that equational reasoning can be used to verify properties of a haskell program. The described methods will be demonstrated with a simple example. We will prove that the monoid laws holds for new type using polymorphism and equational reasoning. The last section we show that equational reasoning is used in a common library like pipes. All examples in this article a written in Haskell.
 
-Some programmers care about the correctness of their software. It's hard to write a correct program at the first attempt. 
-Hence, verification of a program improves the reliability of the software. 

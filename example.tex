@@ -43,14 +43,15 @@ instance (Applicative f, Monoid b) => Monoid (f b) where
 
     mappend = liftA2 mappend
 \end{lstlisting}
-The generalization has the advantage, that we have to prove the type class law only once for all types that match the general type declaration. The process of verifying a program is cumbersome and time consuming generalization of proofs is desirable.
+The generalization has the advantage, that we have to prove the type class law only once for all types that match the general type declaration. The process of verifying a program is cumbersome and time consuming. Generalization of proofs is desirable.
 
 We will first describe, why the instance implementation of listing \ref{lst:monoidinstance} makes the type \verb|IO ( Char -> IO ())| part of the \verb|Monoid| type class. Then we prove that the monoid laws from section \ref{sec:monoid} hold for the definition in listing \ref{lst:monoidinstance}. We will assume that the instance implementation of listing \ref{lst:monoidinstance} is a monoid in the first part.
 
 \subsection{Generalization of the plugin type }
 \label{sec:generalization}
 
-In order to use the instance implementation of listing \ref{lst:monoidinstance} the type \verb|IO| has to be part of the type class \verb|Applicative| and \verb|( Char -> IO ())| has to be a \verb|Monoid|. We can use the same argument to check if \verb|( Char -> IO ())|  is a monoid. \verb|( Char -> IO ())| is a monoid if the type \verb|(->) Char| (that's the type of a haskell function) is an applicative and the type \verb|IO ()| is a monoid. We repeat the same argument for \verb|IO ()|.
+In order to use the instance implementation of listing \ref{lst:monoidinstance} the type \verb|IO| has to be part of the type class \verb|Applicative| and the type \verb|Char -> IO ()| has to be a \verb|Monoid|. 
+Hence we have to check if \verb|Char -> IO ()| is a monoid. We use the instance definition of listing \ref{lst:monoidinstance} again and say: \verb|Char -> IO ()| is a monoid if the type \verb|(->) Char| (that's the type of a haskell function) is part of the \verb|Applicative| type class and the type \verb|IO ()| is a monoid. We repeat the same argument for \verb|IO ()|.
 
 Here is an overview of all the steps of the argumentation:
 \begin{enumerate}
@@ -82,7 +83,7 @@ Notice that we rely heavily on the assumption that listing \ref{lst:monoidinstan
 \subsection{Proof}
 \label{sec:exampleproof}
 
-In this section we will show that the implementation in listing \ref{lst:monoidinstance} satisfies the left identity law of the \verb|Monoid| type class (see section \ref{sec:monoid}.
+In this section we will show that the implementation in listing \ref{lst:monoidinstance} satisfies the left identity law of the \verb|Monoid| type class (see section \ref{sec:monoid}).
 The left identity law demands that:
 \begin{verbatim}
 mappend mempty x = x
@@ -95,13 +96,14 @@ liftA2 f x y = (pure f <*> x) <*> y
 \end{verbatim}
 
 \begin{verbatim}
-mappend mempty x        
-= liftA2 mappend mempty x
-= liftA2 mappend (pure mempty) x
+mappend mempty x                           -- def. mappend
+= liftA2 mappend mempty x                  -- def. mempty
+= liftA2 mappend (pure mempty) x           -- def. liftA2
 = (pure mappend <*> pure mempty) <*> x
 \end{verbatim}
 
-One law of the \verb|Applicative| type class says (see section \ref{sec:applicatives}):
+To resolve this expression further, we use the laws described in section \ref{sec:applicatives}.
+One law of the \verb|Applicative| type class says:
 \begin{verbatim}
 pure f <*> pure x = pure (f x)
 \end{verbatim}
@@ -109,13 +111,17 @@ We can use this property substitute the left-hand side. Next we write \verb|mapp
 \begin{verbatim}
 mappend mempty x = x
 \end{verbatim}
-to simplify the expression. In the last step we use the first applicative law ((see section \ref{sec:applicatives}) to rewrite the expression as \verb|x|.
+to simplify the expression. In the last step we use the first applicative law
 \begin{verbatim}
-(pure mappend <*> pure mempty) <*> x
-= pure (mappend mempty) <*> x
-= pure (\a -> mappend mempty a) <*> x
-= pure (\a -> a) <*> x
-= pure id <*> x
+pure id <*> v = v
+\end{verbatim}
+ to rewrite the expression as \verb|x|.
+\begin{verbatim}
+(pure mappend <*> pure mempty) <*> x    -- 3. applicative law
+= pure (mappend mempty) <*> x           -- transform to lambda
+= pure (\a -> mappend mempty a) <*> x   -- 1. monoid law 
+= pure (\a -> a) <*> x                  -- a -> a = id
+= pure id <*> x                         -- 1. applicative law
 x
 \end{verbatim}
 
@@ -124,7 +130,7 @@ That completes the proof.
 The example demonstrated several ideas:
 \begin{itemize}
 \item Type classes allow us to generalize definitions. A prove for the generalization is valid for all specializations.
-\item To prove type class law we can use equational reasoning.c
+\item To prove a type class law we can use equational reasoning.
 \item Type class laws (or properties) allow to prove further properties.
 \end{itemize}
 
