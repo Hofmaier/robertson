@@ -2,11 +2,35 @@ module Main where
 
 import Pipes
 import qualified Pipes.Prelude as P
+import System.IO
+import Data.Monoid
 
 main = do
-    handleChar <- logto
+    handleChar <- logto <> print2stdout
     c <- getChar
     handleChar c
+
+logto :: IO ( Char -> IO ())
+logto = do
+  handle <- openFile "log.txt" WriteMode
+  return (hPutChar handle)
+
+print2stdout :: IO ( Char -> IO ())
+print2stdout = do
+  handle <- openFile "log1.txt" WriteMode
+  return (hPutChar handle)
+
+--instance Monoid b => Monoid (a -> b) where
+--    mempty = \_ -> mempty
+--    mappend f g = \a -> mappend (f a) (g a)
+
+instance Monoid a => Monoid (IO a) where
+    mempty = return mempty
+
+    mappend io1 io2 = do
+        a1 <- io1
+        a2 <- io2
+        return (mappend a1 a2)
 
 producer1 :: Producer String IO ()
 producer1 = P.stdinLn
