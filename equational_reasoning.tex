@@ -149,7 +149,7 @@ length [] + length ys     -- apply length []
 length ys
 \end{verbatim}
 
-Both sides of the equation \ref{eq:lengthprop} are equal when evaluated with the the empty list \verb|[]| as argument. Hence, property \ref{eq:lengthprop} holds for base case.
+When we evaluate each side of the equation \ref{eq:lengthprop} with the value \verb|[]| for \verb|xs|, the result is \verb|length ys| on both sides. Hence, property \ref{eq:lengthprop} holds for the base case.
 
 \item[Induction step]
  We have to prove that
