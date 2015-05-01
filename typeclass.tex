@@ -4,7 +4,7 @@
 
 This section will give a short description of the concept type class. It will explain the relation to polymorphism and describe type classes \verb|Functor|, \verb|Applicative| and \verb|Monoid| in more detail as these type classes are important for the example in section \ref{sec:example}.
 
-The concept of a type class was introduced as a construct that supports operator overloading and ad-hoc polymorphism \cite{Wadler}.
+The concept of a type class was introduced as a construct that supports operator overloading and ad-hoc polymorphism \cite{Wadler}. Type classes allow programmers to write general definitions in a typesafe manner by use constrain the paramaters.
 
 A type classes are often compared to interfaces. It contains the function declarations. A type becomes an instance of a type class when it defines all required functions of the type class. When a type is an instance of a type class, we can make certain assumptions about behavior of the type. In contrary to interfaces, type classes aren't types. A value can have the type of an interface but not of a type class. Another difference to interfaces is that type classes describe functions and the instance types are part of the function signature. The instance type can be the return type. Interfaces define methods of the instance type.
 
@@ -150,13 +150,17 @@ The following type are instances of the type class \verb|Applicative|
 \item IO
 \end{itemize}
 
-There are several laws that \verb|Applicative| instances should satisfy \cite{mcbride} \cite{control.applicative}. This article will describe only the following, as it defines the relation to the \verb|Functor| type class.
+There are several laws that \verb|Applicative| instances should satisfy \cite{mcbride} \cite{control.applicative}. This article will use only the following :
 
-\begin{verbatim}
-fmap g x = pure g <*> x
-\end{verbatim}
+\begin{enumerate}
+\item \verb|pure id <*> v = v|
+\item \verb|fmap g x = pure g <*> x|
+\item \verb|pure f <*> pure x = pure (f x)|
+\end{enumerate}
 
-The law says that applying \verb|fmap| over a normal function \verb|g| over a functor \verb|x| is the same as putting \verb|g| in a default context and mapping the resulting function over \verb|x|. Figure \ref{fig:functor_applicative} illustrates the relation between \verb|Functor| and \verb|Applicative|.
+The second law says that applying \verb|fmap| over a normal function \verb|g| over a functor \verb|x| is the same as putting \verb|g| in a default context and mapping the resulting function over \verb|x|. Figure \ref{fig:functor_applicative} illustrates the relation between \verb|Functor| and \verb|Applicative|.
+
+The third law says that it doesn't matter if we put the values \verb|f| and \verb|x| in a default context first and then apply \verb|<*>| or if we call \verb|f| on \verb|x| first and then put them in a default context. We will use this property to prove another property in section \ref{sec:exampleproof}
 
 \begin{figure}
   \centering

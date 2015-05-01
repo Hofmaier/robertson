@@ -4,6 +4,7 @@
 \usepackage{graphicx}
 \usepackage{url}
 \usepackage{etaremune}
+\usepackage{listings}
 \newfloat{program}{thp}{lop}
 \floatname{program}{Listing}
 \author{Lukas Hofmaier}
@@ -141,6 +142,16 @@ f . g = \x -> f (g x)
 Function composition allows us to create a function by composing it with many small functions. 
 
 Functions in Haskell form a category in category theory. They satisfy the category laws.
+
+\subsection{Applicative function definition}
+ The applicative instance is defined as follows:
+\begin{verbatim}
+instance Monoid b => Monoid (a -> b) where
+    mempty = pure mempty
+
+    mappend = liftA2 mappend
+\end{verbatim}
+
 \begin{description}
 \item[Associativity law] 
 \item[Left/Right Identity law] 
