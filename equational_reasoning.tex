@@ -87,9 +87,20 @@ Equational reasoning is use-full because
 \subsection{Proof by structural induction}
 \label{sec:induction}
 
-Substitution isn't the only way to proves a property. Another way is to use proof by structural induction. Proof by induction is often used to reason about programs that involve recursion. 
+If we apply simple substitution to a recursive function, we run into problems.
+Consider the following definition:
+\begin{verbatim}
+length [] = 0
+length (x:xs) = 1 + length xs
+\end{verbatim}
+If we substitute \verb|length x| with the definition \verb|1 + length xs|, we end up substituting \verb|length x| forever. A way to verify recursive programs is to use proof by structural induction.  
 Structural induction for proofing a property can be used for list or algebraic data types with a recursive constructor (e.g. Tree).
- The principle of induction states, that it is sufficient to prove a property $p$ for the base case and that $p$ is preserved by the inductive case.
+
+ The principle of induction states, that it is sufficient to prove a property $p$ for the base case and that $p$ is preserved by the inductive case. In order to prove $p$, two steps are required:
+ \begin{description}
+ \item[Base case] Prove $p(0)$ is true.
+ \item[Induction step] Prove $p(n+1)$ if $p(n)$ (induction hypothesis) is true.
+ \end{description}
 
 Proof by induction is similar to write a recursive function. Recursive functions use a base case (e.g. \verb|[]|, 0). 
 If we use structural induction we proof the base case. We show that the property holds for a concrete input value (e.g. \verb|[]|, 0). 
@@ -113,39 +124,35 @@ length (x:xs) = 1 + length
 (x:xs) ++ ys = x:(xs++ys)
 \end{verbatim}
 
-First we have to show that property \ref{eq:lengthprop} holds for the base case. The base case, in this example, are the arguments \verb|[]| and a arbitrary list for \verb|ys|. It isn't necessary to replace \verb|ys| because, the definition of \verb|++| uses recursion over \verb|xs|. \verb|ys| will always be the same list.
+\begin{description}
+\item[Base case]
+We have to show that property \ref{eq:lengthprop} holds for the base case. The base case, in this example, are the arguments \verb|[]| and a arbitrary list for \verb|ys|. It isn't necessary to replace \verb|ys| because, the definition of \verb|++| uses recursion over \verb|xs|. \verb|ys| will always be the same list.
 In order to check if property \ref{eq:lengthprop} holds for the base case, we replace \verb|xs| with  \verb|[]|, leading to
 
-\begin{program}
 \begin{verbatim}
 length ([] ++ ys) = length [] + length ys
 \end{verbatim}
-\caption{Base case}
-\label{lst:equality1}
-\end{program}
 
 We will evaluate the expression on the left-hand side and the right and side separately.
-
 The left-hand side evaluates to
-\begin{program}
+
 \begin{verbatim}
 length ([] ++ ys) -- apply ++
 length ys
 \end{verbatim}
-\end{program}
 
 The right-hand side evaluates to 
-\begin{program}
+
 \begin{verbatim}
 length [] + length ys     -- apply length []
 0 + length ys
 length ys
 \end{verbatim}
-\end{program}
 
-Both sides of the function definition in Listing \ref{lst:equality1} are equal. Hence, property \ref{eq:lengthprop} holds for the empty list, our base case.
+Both sides of the equation \ref{eq:lengthprop} are equal when evaluatet with the the empty list \verb|[]| as argument. Hence, property \ref{eq:lengthprop} holds for base case.
 
-Now we have to prove the induction step. We have to prove that
+\item[Induction step]
+ We have to prove that
 \begin{equation}
   \label{eq:induction}
     \text{length ((x:xs) ++ ys)} = \text{(length (x:xs)) ++ (length ys)}
@@ -157,7 +164,7 @@ with the assumption (induction hypothesis)
       \text{length (xs ++ ys)} = \text{(length xs) ++ (length ys)}
 \end{equation}
 
-Again, we evaluate the the left hand side of equation \ref{eq:induction}.
+Again, we evaluate the the left-hand side of equation \ref{eq:induction}.
 
 \begin{program}
 \begin{verbatim}
@@ -177,3 +184,8 @@ length (x:xs) + length ys    -- apply definition of length
 \end{program}
 
 The last listing shows, that the equation \ref{eq:induction} follows from the induction hypothesis in equation \ref{eq:induction_hypothesis}. This completes the induction step and therefore the proof itself.
+\end{description}
+
+In order to apply equational reasoning we used definitions of all functions in your program. Hence, equational reasoning demands that we have access to the source code or that the the library, we are using allready exhibits proved properties. If we use packages from hackage \footnote{http://hackage.haskell.org} Haskell we can browse the source code. 
+
+Sometimes we can rely on proven properties. For example all types of the standard library, that are instance of a type class, satisfy the type class laws (see \ref{sec:typeclasses}) \cite{yorgey}. Some libraries exhibit properties in their documentation (e.g. pipes library of section \ref{sec:pipes} \cite{gonzales13})
