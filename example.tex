@@ -1,11 +1,11 @@
 \section{Example proof for Monoid Laws}
 \label{sec:example}
 In this example we use equational reasoning (see section \ref{sec:equationalreasoning}) to prove the monoid laws (see section \ref{sec:monoid}) for a new type.
-The following example is taken from a blogpost of Gabriel Gonzales \cite{gonzales14}. 
+The following example is taken from a blog post of Gabriel Gonzales \cite{gonzales14}. 
 
 Suppose we want to build a plugin system. A plugin in our example is a \verb|IO| action, that takes a \verb|Char| value and does some work with it (e.g. log to a file, potentially with side effect). We demand the following requirements:
 \begin{itemize}
-\item We want to be able to add an arbritrary number of plugins.
+\item We want to be able to add an arbitrary number of plugins.
 \item The plugins should be composable.
 \item The order we add the plugins must not matter.
 \end{itemize}
@@ -35,7 +35,7 @@ logTo = do
 \end{verbatim}
 
 The plugins are of type \verb|IO ( Char -> IO ())|. Hence we have to provide a monoid instance implementation for the type \verb|IO ( Char -> IO ())|. Instead of writing a specialized instance for \verb|IO ( Char -> IO ())|, we use the general implementation of section \ref{sec:monoid}.
-The instance implementation is repeated for convinience:
+The instance implementation is repeated for convenience:
 
 \begin{lstlisting}[caption={Monoid instance},label={lst:monoidinstance}]
 instance (Applicative f, Monoid b) => Monoid (f b) where
@@ -43,14 +43,14 @@ instance (Applicative f, Monoid b) => Monoid (f b) where
 
     mappend = liftA2 mappend
 \end{lstlisting}
-The generalization has the advantage, that we have to prove the type class law only once for all types that match the general type declaration. The process of verifing a program is cumbersome and time consuming generalization of proofs is desirable.
+The generalization has the advantage, that we have to prove the type class law only once for all types that match the general type declaration. The process of verifying a program is cumbersome and time consuming generalization of proofs is desirable.
 
 We will first describe, why the instance implementation of listing \ref{lst:monoidinstance} makes the type \verb|IO ( Char -> IO ())| part of the \verb|Monoid| type class. Then we prove that the monoid laws from section \ref{sec:monoid} hold for the definition in listing \ref{lst:monoidinstance}. We will assume that the instance implementation of listing \ref{lst:monoidinstance} is a monoid in the first part.
 
 \subsection{Generalization of the plugin type }
 \label{sec:generalization}
 
-In order to use the instance implementatoin of listing \ref{lst:monoidinstance} the type \verb|IO| has to be part of the type class \verb|Applicative| and \verb|( Char -> IO ())| has to be a \verb|Monoid|. We can use the same argument to check if \verb|( Char -> IO ())|  is a monoid. \verb|( Char -> IO ())| is a monoid if the type \verb|(->) Char| (that's the type of a haskell function) is an applicative and the type \verb|IO ()| is a monoid. We repeat the same argument for \verb|IO ()|.
+In order to use the instance implementation of listing \ref{lst:monoidinstance} the type \verb|IO| has to be part of the type class \verb|Applicative| and \verb|( Char -> IO ())| has to be a \verb|Monoid|. We can use the same argument to check if \verb|( Char -> IO ())|  is a monoid. \verb|( Char -> IO ())| is a monoid if the type \verb|(->) Char| (that's the type of a haskell function) is an applicative and the type \verb|IO ()| is a monoid. We repeat the same argument for \verb|IO ()|.
 
 Here is an overview of all the steps of the argumentation:
 \begin{enumerate}
@@ -66,7 +66,7 @@ Here is an overview of all the steps of the argumentation:
 We show the required properties in reversed order.
 
 \begin{etaremune}
-\item The standard library provides a monoid instance for \verb|()| \cite{monoid}. In this article we will believe the farytale of abstraction and assume that the implemention of the standard library satisfies the monoid laws.
+\item The standard library provides a monoid instance for \verb|()| \cite{monoid}. In this article we will believe the fairy tale of abstraction and assume that the implementation of the standard library satisfies the monoid laws.
 \item \verb|IO ()| is a monoid, because \verb|IO| is part of the \verb|Applicative| type class \cite{control.applicative} and \verb|()| is a monoid if the implementation from listing \ref{lst:monoidinstance} satisfies the monoid laws.
 \item The type \verb|(->) r| (that's the type of haskell functions) is a part of the \verb|Applicative| type class \cite{control.applicative}.
  \verb|Char -> IO ()| is a monoid because \verb|(->) Char| is a applicative and \verb|IO ()| is a monoid if the implementation from listing \ref{lst:monoidinstance} satisfies the monoid laws.
@@ -77,7 +77,7 @@ We show the required properties in reversed order.
 
 \end{etaremune} 
 
-Notice that we rely heavily on the assumtion that listing \ref{lst:monoidinstance} satisfies the monoid laws. The next section will prove that the implementation is correct.
+Notice that we rely heavily on the assumption that listing \ref{lst:monoidinstance} satisfies the monoid laws. The next section will prove that the implementation is correct.
 
 \subsection{Proof}
 \label{sec:exampleproof}
@@ -88,7 +88,7 @@ The left identity law demands that:
 mappend mempty x = x
 \end{verbatim}
 
-We will use equational reasoning (see section \ref{sec:equationalreasoning}) to show that the left-hand side is equal to \verb|x|. First we will use the definitions of \verb|mappend| and \verb|mempty| of listing \ref{sec:equationalreasoning} to substitute the left-hand side. Furthermore we lookup the definition of \verb|liftA2| in the source code \cite{control.applicative} to evaluate the expression. 
+We will use equational reasoning (see section \ref{sec:equationalreasoning}) to show that the left-hand side is equal to \verb|x|. First we will use the definitions of \verb|mappend| and \verb|mempty| of listing \ref{sec:equationalreasoning} to substitute the left-hand side. Furthermore we look-up the definition of \verb|liftA2| in the source code \cite{control.applicative} to evaluate the expression. 
 \verb|liftA2| is defined as follows
 \begin{verbatim}
 liftA2 f x y = (pure f <*> x) <*> y
