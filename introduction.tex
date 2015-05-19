@@ -1,13 +1,24 @@
 \section{Introduction}
 \label{sec:intro}
 
-Type classes are a concept to describe behavior. In addition, they exhibit certain properties. This properties are called laws. 
+Type classes are a concept to describe behavior. In addition, they exhibit certain properties. These properties are called laws. 
 Laws allow us to make assumption about the behavior of the program and reason about the code. Properties of existing code allow us to rely on expected behavior and deduce further properties for new code.
 
-A compiler doesn't verify if a given property holds. It's in the responsibility of the programmer to check if the program behaves correctly. For most programmers it's hard to write a correct program at the first attempt. This leaves us with the question of how to verify the type class laws. There are several methods to verify software. In this article we will look at technique of equational reasoning to prove type class laws. 
+For example the typeclass \verb|Functor| makes sure that we can apply the function \verb|fmap| with a type that is part of the \verb|Functor| type class. The type class dictates the behavior. All functors are expected to exhibit certain kinds of properties. These properties guarante that the function \verb|fmap| only applies a function to all values inside the functor and doesn't change the structure or the context. The expression
+\begin{verbatim}
+dontchangecontext = do line <- fmap reverse getLine
+                       putStrLn $ " "
+\end{verbatim}
+applies \verb|reverse| to the result of the IO function \verb|getLine| without changing the the inputstream. 
+If we can rely on known properties of your program, we minimise unexpected behavior.
 
-Equational reasoning is a formal method for software verification with the aim of providing a high reliability. 
-Correctness is specified in form of equations. The source code must satisfy this equations. 
+Type class instances from the standard library obey the type class laws. If we write new instances, it's our responsibility to check if the type class laws hold.
+It's in the responsibility of the programmer to check if the program behaves correctly. For most programmers it's hard to write a correct program at the first attempt. This leaves us with the question of how to verify the type class laws. There are several methods to verify software. In this article we will look at technique of equational reasoning to prove type class laws. 
+
+Equational reasoning is a formal method for software verification with the aim of providing a high reliability. An equation is a statement that two expressions are equal (such as $1 + 3 = 4$). And reasoning is the process of thinking about something in a logical way in order to form a conclusion. The methods implies that we show correctness by showing that two expression are equal. 
+
+The programming language Haskell is a purely functional language, which means that in general, functions in Haskell do not have side effects. The absence of side effects allow us the replace the left-hand side with the right-hand side and vice verca. It's easier to replace one expression with an equal other expression. For this reason it's possible to apply equational reasoning to Haskell source code. 
+Properties are specified in form of equations. The source code must satisfy this equations. 
 
 For example, the first formally verified micro kernel, seL4 was verified using formal verification. The programming language Haskell was used because it's easier to reason about a program written in a purely functional programming language, like Haskell, compared to a program written in a imperative or object-oriented language  \cite{Klein09}. 
 
