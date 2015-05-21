@@ -95,3 +95,29 @@ Kategorie hat 3 Komponenten
 
 * Fragen fuer Draft
 Kann ich Blog-Post fuer Functor pattern referenzieren.
+* Feedback 12.5
+** Roter faden ist nicht ersichtlich
+Massnahmen
+- Abstract
+- Ausfuehrlicher ueber Motivation schreiben
+- Schluss
+*** Schluss
+was hat es mir gebracht? gehoert das in einen technischen Bericht oder zu persoenlich?
+reichen diese massnahmen fuer einen roten faden aus oder ist noch mehr noetig.
+* type classes
+Fuer show werden nur Deklarationen gezeigt. 
+* equational reasoning
+reverse. mit id und multiplikation haben die eigenschaft aber ich muesste sie beweisen.
+* Besprechung 19.5
+value hat type. type ist teil von type class. function ist value
+type class classes. was ist waere das? klassen enthalten implementation.
+
+
+** Fragen
+Pipes weglassen?
+Haskell syntax und semantik erklaeren. in intro in text.
+was ist mit titel. gelbe markierung nichts.
+*** Monoid Beweis von Gonzales
+Ist nicht von mir. OK?
+ganzer Beweis. in Anhang?
+Kann ich die Arbeit vor dem 5.6 nochmals abgeben? Am 24.5
