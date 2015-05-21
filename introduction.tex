@@ -1,8 +1,60 @@
 \section{Introduction}
-\label{sec:intro}
+\label{sec:This}
 
-Type classes are a concept to describe behavior. In addition, they exhibit certain properties. These properties are called laws. 
-Laws allow us to make assumption about the behavior of the program and reason about the code. Properties of existing code allow us to rely on expected behavior and deduce further properties for new code.
+When I started learning functional programming I often read about the advandages of pure functional programming languages. One advandage is that they are great for \gls{verification} and equational reasoning \cite{Wadler87}.
+I didn't know precisely what equational reasoning is and how it can be used to verify certain properties of a program. I also didn't know what kind of properties of a program can be verified with equational reasoning.
+This article describes the verification method equational reasoning by example. 
+
+\subsection{Why use equational reasoning?}
+
+Equational reasoning can be used as a formal method for software verification. It possible to proof the correctness of a program. Correctness means that specified properties of the program hold for an arbitrary input. 
+
+A property of a program can be represended as an equation. For example
+
+\begin{equation}
+  \label{eq:firstfunctorlaw}
+\text{fmap } \text{id}  =  \text{id}  
+\end{equation}
+
+is a property of the function \verb|fmap|. The function \verb|fmap| applies it's first parameter to every element in a container (mapping). The function \verb|id| is the identity function. This property says that appliing the function \verb|fmap| with the argument \verb|id| is the same as appling the function \verb|id|. Put it another way, mapping the identiy function over every item in a container has no effect. Given a function definition of \verb|fmap| we can proof that this property holds using equational reasoning.
+
+The goal of equational reasoning is to provide high reliability. 
+For example, the first formally verified micro kernel, seL4 was verified using formal verification to ensure proper security functionality and security assurance \cite{Klein09}.
+Another example is the streaming library pipes. The author, Gabriel Gonzales, used equational reasoning to prove the correctness of the library.
+
+\subsection{Why are functional programming languages great for equational reasoning?}
+
+The reason why we can use equational reasoning in functional programming is \gls{referential_transparency}. A piece of code can be replaced by its value; this is true in purely functional languages. The absence of side effects allow us the replace the left-hand side of a definition with the right-hand side and vice verca. For example if you have the following Haskell definition:
+\begin{verbatim}
+x = 23
+\end{verbatim}
+That means wherever you see an \verb|x| in your program you can substitute it with \verb|23|.
+This isn't possible in programs written in an imperative language because they are dependent on their context. For example if we have
+\begin{verbatim}
+x = 23
+\end{verbatim}
+we must not substitute \verb|x| with \verb|23| in your program. Arbritrary integers could be assigned to the variable \verb|x| in later statements of the program.
+
+The programming language Haskell is a purely functional language, which means that in general, functions in Haskell do not have side effects. Hence, we can verify Haskell program using equational reasoning. For this reason all examples in this article a written in Haskell.
+
+\subsection{What properties will we discuss?}
+
+Equational reasoning is used to proof if certain properties hold. In Haskell so called type classes dictate properties. Type classes are a concept to describe behavior of a type. They are very similar to interfaces but some type classes exihibit certain properties that every implementation must obey. Properties of type classes are called type class laws. Laws allow us to make assumption about the behavior of the program and reason about the code. Properties of existing code allow us to rely on expected behavior and deduce further properties for new code. Section \ref{sec:typeclasses} will give a short introduction to type classes. The example proof in section \ref{sec:example} will verify a type class law.
+
+\subsection{Overview}
+
+This article will illustrate in detail how equational reasoning works in practice using the type class laws of monoid as the running example. Section \ref{sec:example} will walk through the process of proofing a certain property for a plugin system. We will proof that the type of the plugins obej the so called monoid laws with the methode equational reasoning.  The monoid laws are specified by the type class monoid. In order understand  example in \ref{sec:example} the first three sections will explain the fundamental concepts used in section \ref{sec:example}. The article doesn't require knowledge of type classes ands monoids. 
+Section \ref{sec:typeclasses} will give a short introduction to type classes with a few examples and section \ref{sec:monoid} describes monoids. In section \ref{sec:equationalreasoning} we will give an introduction to equational reasoning.
+
+This article give answers to the following questions:
+\begin{itemize}
+\item What are desired properties of your program? Where do the come from (type classes)? Why are they useful? (section \ref{sec:typeclasses}
+\item What is equational reasoning? What is the difference between testing and proofing? How do we use equational reasoning to verify properties of a program?
+\end{itemize}
+
+
+ In addition, they exhibit certain properties. These properties are called laws. 
+
 
 For example the typeclass \verb|Functor| makes sure that we can apply the function \verb|fmap| with a type that is part of the \verb|Functor| type class. The type class dictates the behavior. All functors are expected to exhibit certain kinds of properties. These properties guarante that the function \verb|fmap| only applies a function to all values inside the functor and doesn't change the structure or the context. The expression
 \begin{verbatim}
@@ -15,12 +67,8 @@ If we can rely on known properties of your program, we minimise unexpected behav
 Type class instances from the standard library obey the type class laws. If we write new instances, it's our responsibility to check if the type class laws hold.
 It's in the responsibility of the programmer to check if the program behaves correctly. For most programmers it's hard to write a correct program at the first attempt. This leaves us with the question of how to verify the type class laws. There are several methods to verify software. In this article we will look at technique of equational reasoning to prove type class laws. 
 
-Equational reasoning is a formal method for software verification with the aim of providing a high reliability. An equation is a statement that two expressions are equal (such as $1 + 3 = 4$). And reasoning is the process of thinking about something in a logical way in order to form a conclusion. The methods implies that we show correctness by showing that two expression are equal. 
-
-The programming language Haskell is a purely functional language, which means that in general, functions in Haskell do not have side effects. The absence of side effects allow us the replace the left-hand side with the right-hand side and vice verca. It's easier to replace one expression with an equal other expression. For this reason it's possible to apply equational reasoning to Haskell source code. 
 Properties are specified in form of equations. The source code must satisfy this equations. 
 
-For example, the first formally verified micro kernel, seL4 was verified using formal verification. The programming language Haskell was used because it's easier to reason about a program written in a purely functional programming language, like Haskell, compared to a program written in a imperative or object-oriented language  \cite{Klein09}. 
 
-In this article we first describe type classes and the corresponding laws with a few examples. Then we show that equational reasoning can be used to verify properties of a haskell program. The described methods will be demonstrated with a simple example. We will prove that the monoid laws holds for new type using polymorphism and equational reasoning. The last section we show that equational reasoning is used in a common library like pipes. All examples in this article a written in Haskell.
 
+An equation is a statement that two expressions are equal (such as $1 + 3 = 4$). And reasoning is the process of thinking about something in a logical way in order to form a conclusion. The methods implies that we show correctness by showing that two expression are equal. 
