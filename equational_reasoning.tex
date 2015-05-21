@@ -9,7 +9,7 @@ We will describe the difference with a simple example. Given the following prope
 
 \begin{equation}
   \label{eq:reverse_prop}
-\text{reverse} (\text{reverse } xs) == xs  
+\text{reverse} (\text{reverse } xs) = xs  
 \end{equation}
 
 The equation \ref{eq:reverse_prop} expresses, if we apply \verb|reverse| two times on the same list \verb|xs| we get back the original list \verb|xs|. \verb|reverse| is the inverse of \verb|reverse|. Verification techniques allow us to check if equation \ref{eq:reverse_prop} holds. We describe 3 techniques:
@@ -188,4 +188,4 @@ The last listing shows, that the equation \ref{eq:induction} follows from the in
 
 In order to apply equational reasoning we used definitions of all functions in your program. Hence, equational reasoning demands that we have access to the source code or that the the library, we are using already exhibits proved properties. If we use packages from hackage \footnote{http://hackage.haskell.org} Haskell we can browse the source code. 
 
-Sometimes we can rely on proven properties. For example all types of the standard library, that are instance of a type class, satisfy the type class laws (see \ref{sec:typeclasses}) \cite{yorgey}. Some libraries exhibit properties in their documentation (e.g. pipes library of section \ref{sec:pipes} \cite{gonzales13})
+Sometimes we can rely on proven properties. For example all types of the standard library, that are instance of a type class, satisfy the type class laws (see \ref{sec:typeclasses}) \cite{yorgey}. Some libraries exhibit properties in their documentation (e.g. pipes library of section \ref{sec:pipes} \cite{gonzales13}). 
