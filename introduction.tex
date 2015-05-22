@@ -9,7 +9,7 @@ This article describes the verification method equational reasoning by an interm
 
 Equational reasoning can be used as a formal method for software verification. It's a way to proof the correctness of a program. Correctness means that specified properties of the program hold for an arbitrary input. 
 
-A property of a program can be represented as an equation. For example
+A property of a program can be specified in the form of an equation. For example
 \begin{equation}
   \label{eq:firstfunctorlaw}
 \text{fmap } \text{id}  =  \text{id}  
@@ -22,51 +22,59 @@ Another example is the streaming library pipes. The author, Gabriel Gonzales, us
 
 \subsection{Why are functional programming languages great for equational reasoning?}
 
+An equation is a statement that two expressions are equal (e.g. $1 + 3 = 4$). And reasoning is the process of thinking about something in a logical way in order to form a conclusion. The technique of equational reasoning implies that we show correctness by showing that two expression of a program are equal. 
+
 The reason why we can use equational reasoning in functional programming is \gls{referential_transparency}. A piece of code can be replaced by its value; this is true in purely functional languages. The absence of side effects allow us the replace the left-hand side of a definition with the right-hand side and vice verca. For example if you have the following Haskell definition:
 \begin{verbatim}
 x = 23
 \end{verbatim}
 That means wherever you see an \verb|x| in your program you can substitute it with \verb|23|.
-This isn't possible in programs written in an imperative language because they are dependent on their context. For example if we have
-\begin{verbatim}
-x = 23
-\end{verbatim}
-we must not substitute \verb|x| with \verb|23| in your program. Arbitrary integers could be assigned to the variable \verb|x| in other statements of the program.
 
-The programming language Haskell is a purely functional language, which means that in general, functions in Haskell do not have side effects. Hence, we can verify Haskell program using equational reasoning. For this reason all examples in this article a written in Haskell.
+This isn't possible in programs written in an imperative language because they are dependent on their context. In an imperative language \verb|x = 23| is an assigment, not a definition. If the statement is an assigment we must not substitute \verb|x| with \verb|23| in your program because arbitrary values could be assigned to the variable \verb|x| in other statements of the program.
+
+The programming language Haskell is a purely functional language, which means that in general, functions do not have side effects. Hence, we can verify Haskell program using equational reasoning. For this reason all examples in this article a written in Haskell.
 
 \subsection{What properties will we discuss?}
 
-Equational reasoning is used to proof if certain properties hold. In Haskell so called \emph{type classes} dictate properties. Type classes are a concept to describe behavior of a type. They are very similar to interfaces but some type classes exhibit certain properties that every implementation must obey. Properties of type classes are called type class laws. Laws allow us to make assumption about the behavior of the program and reason about the code. Properties of existing code allow us to rely on expected behavior and deduce further properties for new code. Section \ref{sec:typeclasses} will give a short introduction to type classes. The example proof in section \ref{sec:example} will verify a type class law.
+Equational reasoning is used to proof if certain properties hold. If we want to verify a program, we have to define one or more properties in the first place. We could define arbritrary properties but this article mainly deals with properties derived from the so called \emph{type class laws}. In Haskell type class laws are exhibited by \glspl{typeclass}. For example, the property formed by equation \ref{eq:firstfunctorlaw} is type class law.
 
+Type classes are a concept to describe the behavior of a type. 
+They are very similar to interfaces. If we want to make a type an instance of a type class, we have to implement the functions given by the \glspl{typesignature} of the type class. Figure \ref{fig:typeclassrelation} illustrates the relation between values, types and type classes in Haskell.
+
+An instance of a type class must obey the corresponding type class laws. Laws allow us to make assumptions about the behavior of the program and reason about the code. Properties of existing code allow us to rely on expected behavior and deduce further properties for new code. For example, if the property formed by equation \ref{eq:firstfunctorlaw} holds, we can rest assure that \verb|fmap| only applies the function to the items in the container and does nothing more, like changing the structure. 
+
+Type class laws aren't enforced by Haskell. We need to verify them yourself when implementing a instance. We can verify the correctness of these equations using equational reasoning to prove that the instances we build are sound. 
+
+Section \ref{sec:typeclasses} will give a short introduction to type classes. The example proof in section \ref{sec:example} will verify a type class law.
+
+\tikzset{multi  attribute/.style={attribute ,double  distance=1.5pt}}
+\tikzset{derived  attribute/.style={attribute ,dashed}}
+\tikzset{total/.style={double  distance=1.5pt}}
+\tikzset{every  entity/.style={draw=orange , fill=orange!20}}
+\tikzset{every  attribute/.style={draw=MediumPurple1, fill=MediumPurple1!20}}
+\tikzset{every  relationship/.style={draw=Chartreuse2, fill=Chartreuse2!20}}
+
+\begin{figure}
+\centering
+\begin{tikzpicture}[node distance=10em]
+  \node[entity](type){type};
+  \node[entity](typeclass)[right of=type]{type class};
+  \node[entity](value)[left of=type]{value};
+  \draw (type) -- (typeclass) node [very near end, above=1pt] {*} node [very near start, above=1pt] {1};
+\draw (value) -- (type) node [very near end, above=1pt] {1} node [very near start, above=1pt] {*};
+  
+\end{tikzpicture}
+\caption{Relation between value, type and type class}
+\label{fig:typeclassrelation}
+\end{figure}
 \subsection{Overview}
 
-This article will illustrate in detail how equational reasoning works in practice using the type class laws of monoid as the running example. Section \ref{sec:example} will walk through the process of proofing a certain property for a plugin system. We will proof that the type of the plugins obey the so called monoid laws with the method equational reasoning.  The monoid laws are specified by the type class monoid. In order understand  example in \ref{sec:example} the first three sections will explain the fundamental concepts used in section \ref{sec:example}. The article doesn't require knowledge of type classes and monoids. 
-Section \ref{sec:typeclasses} will give a short introduction to type classes with a few examples and section \ref{sec:monoid} describes monoids. In section \ref{sec:equationalreasoning} we will give an introduction to equational reasoning.
+This article will illustrate in detail how equational reasoning works in practice using the type class laws of the type class \verb|Monoid| as the running example. Section \ref{sec:example} will walk through the process of proofing that the type class implementation obeys the first monoid law.  In order understand every step of the process the first three sections will explain the fundamental concepts used in section \ref{sec:example}. The article doesn't require knowledge of type classes and monoids. 
+Section \ref{sec:typeclasses} will give a short introduction to type classes with a few examples and section \ref{sec:monoid} describes monoids. In section \ref{sec:equationalreasoning} we will give an introduction to equational reasoning in general before we proof the correctnes of the example in section \ref{sec:example}.
 
 This article give answers to the following questions:
 \begin{itemize}
-\item What are desired properties of your program? Where do the come from (type classes)? Why are they useful? (section \ref{sec:typeclasses}
-\item What is equational reasoning? What is the difference between testing and proofing? How do we use equational reasoning to verify properties of a program?
+\item What are desired properties of your program? Where do the come from? (type classes) Why are they useful? (covered in section \ref{sec:typeclasses})
+\item What is equational reasoning? What is the difference between testing and proofing? How do we use equational reasoning to verify properties of a program? (covered in section \ref{sec:equationalreasoning}
 \end{itemize}
 
-
- In addition, they exhibit certain properties. These properties are called laws. 
-
-
-For example the type class \verb|Functor| makes sure that we can apply the function \verb|fmap| with a type that is part of the \verb|Functor| type class. The type class dictates the behavior. All functors are expected to exhibit certain kinds of properties. These properties guarantee that the function \verb|fmap| only applies a function to all values inside the functor and doesn't change the structure or the context. The expression
-\begin{verbatim}
-dontchangecontext = do line <- fmap reverse getLine
-                       putStrLn $ " "
-\end{verbatim}
-applies \verb|reverse| to the result of the IO function \verb|getLine| without changing the the input stream. 
-If we can rely on known properties of your program, we minimize unexpected behavior.
-
-Type class instances from the standard library obey the type class laws. If we write new instances, it's our responsibility to check if the type class laws hold.
-It's in the responsibility of the programmer to check if the program behaves correctly. For most programmers it's hard to write a correct program at the first attempt. This leaves us with the question of how to verify the type class laws. There are several methods to verify software. In this article we will look at technique of equational reasoning to prove type class laws. 
-
-Properties are specified in form of equations. The source code must satisfy this equations. 
-
-
-
-An equation is a statement that two expressions are equal (such as $1 + 3 = 4$). And reasoning is the process of thinking about something in a logical way in order to form a conclusion. The methods implies that we show correctness by showing that two expression are equal. 
