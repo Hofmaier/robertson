@@ -8,9 +8,11 @@
 \usepackage{todonotes}
 \usepackage{hyperref}
 \usepackage[xindy]{glossaries}
+\usepackage{fancyvrb}
 \makeglossaries
 \newfloat{program}{thp}{lop}
 \floatname{program}{Listing}
+\VerbatimFootnotes
 \author{Lukas Hofmaier}
 \title{Verifying type class laws with equational reasoning}
 
@@ -42,7 +44,7 @@ description={ a type class is a type system construct that supports ad hoc polym
 \tableofcontents
 
 \begin{abstract}
-One of the appeals of pure functional programming is that it is possible to use  equational  reasoning. 
+One of the appeals of pure functional programming is that it is possible to use  equational  reasoning. The reason is referential transparency and being able to replace equals by equals. This article explains what does it mean in programming practice by example.
 \end{abstract}
 
 \input{introduction}
