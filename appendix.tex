@@ -1,0 +1,167 @@
+
+\section{Pipes: A real world example}
+\label{sec:pipes}
+\todo{Abschnitt neu formulieren oder wegglassen}
+Pipes is a streaming library for Haskell. It was build with the following requirements \cite{gonzales13}.
+\begin{description}
+\item[Effects] Streams has to be effectful
+\item[Streaming] Processing in constant memory
+\item[Composability] Modules have to be composable
+\end{description}
+
+Pipes uses the type class \verb|Category| too keep the API simple and easy to use.
+
+This article will descipe a part of the library with an example.
+
+First we need a input stream, that emits values. Input streams are have the type 
+\verb|Producer a m ()|.
+Listing \ref{lst:simpleproducer} show a simple Producer. It emits the integers 1,2 and 3. It is also possible to create producers for effectful streams. We use the simple producer from Listing \ref{lst:simpleproducer} for simplicity reasons.
+
+\begin{program}
+\begin{verbatim}
+produceints123 :: Producer Int IO ()
+produceints123 = each [1,2,3]
+\end{verbatim}
+\caption{Simple Producer}
+\label{lst:simpleproducer}
+\end{program}
+
+Pipes provide the function \verb|for| to consume a producer. 
+\verb|for| \verb|producer| \verb|body| loops over the \verb|producer| and applies a the transformation defined in \verb|body| to every element yielded by the producer. If the body is of type \verb|Effect| it return an \verb|Effect|. If body is of type \verb|Producer| a \verb|Producer| is returned. The type declaration of \verb|for| 
+\begin{program}
+\begin{verbatim}
+for::Monad m=>
+Producer b m r
+-> (b -> Producer c m ())
+-> Producer c m r
+\end{verbatim}
+\caption{type of for}
+\end{program}
+
+A value for the body, could be function, that takes \verb|Int| and returns producer \verb|Producer a IO ()|. Hence the type declarion is \verb|Int -> Producer a IO ()|. We implement a body, that prints the integers to the standard input (strictly speaking this value is an effect of type \verb|Effect Int ()|. But \verb|Effect Int ()| is of type \verb|Producer Int IO () |).
+
+\begin{program}
+\begin{verbatim}
+print2stdout:: Int -> Effect IO ()
+print2stdout x = (lift . putStrLn . show ) x
+\end{verbatim}
+\caption{Definition of an effect, that prints to stdout}
+\label{lst:stdouteffect}
+\end{program}
+
+With the producer and the body we can define a \verb|Effect IO ()|
+\begin{verbatim}
+effect :: Effect IO ()
+effect = for produceints123 print2stdout
+\end{verbatim}
+
+Because the \verb|body| and of \verb|for| can be of type \verb|a -> Producer|, and the type of the return value is \verb|Producer|, it's possible to interleave several Producers.
+
+If we want to duplicate all element we write another body
+\begin{verbatim}
+duplicate :: Int -> Producer Int IO ()
+duplicate x = yield x >> yield x 
+\end{verbatim}
+
+We use \verb|for| to create a another producer. \verb|composed_producer| is a composition of \verb|produceints123| and \verb|duplicate|.
+\begin{verbatim}
+composed_producer :: Producer Int IO ()
+composed_producer = for produceints123 duplicate
+\end{verbatim}
+
+To compose \verb|composed_producer| with our \verb|print2stdout| effect, we apply the \verb|for| function
+
+\begin{verbatim}
+effect2 :: Effect IO ()
+effect2 = for composed_producer print2stdout
+\end{verbatim}
+
+In order to compose producers, the pipe library provides the \verb|~>| function. \verb|~>| is defined as follows:
+\begin{verbatim}
+(f ~> g) x = for (f x) g
+\end{verbatim}
+
+Hence we can write compose a body for \verb|for| like this:
+\begin{verbatim}
+composed_with_yield :: Int -> Effect IO ()
+composed_with_yield = duplicate ~> print2stdout
+\end{verbatim}
+
+Gabriel Gonzales proved that the \verb|~>| operator is associativ. It has the associativity property.
+
+\begin{verbatim}
+ -- Associativity
+ (f ~> g) ~> h = f ~> (g ~> h)
+\end{verbatim}
+
+Because the \verb|~>| operator is associativ, it doesnt matter in witch order the body is composed. The expected behavior is defined in term of cateory laws. It's possible to prove that the specified laws hold.
+
+\section{Appendix}
+\label{sec:appendix}
+
+
+\subsection{Function composition}
+
+\label{sec:functioncomposition}
+
+Function composition in mathematics is defined as
+
+\begin{equation}
+  \label{eq:functioncomposition}
+  (f \circ g)(x) = f(g(x))
+\end{equation}
+
+Haskell functions can be compose with the \verb|.| function.
+
+\begin{figure}
+  \centering
+\begin{verbatim}
+(.) :: (b -> c) -> (a -> b) -> a -> c
+f . g = \x -> f (g x)
+\end{verbatim}
+  \caption{. function}
+  \label{fig:compositionfunction}
+\end{figure}
+
+Function composition allows us to create a function by composing it with many small functions. 
+
+Functions in Haskell form a category in category theory. They satisfy the category laws.
+
+
+\subsection{Applicative function definition}
+ The applicative instance is defined as follows:
+\begin{verbatim}
+instance Monoid b => Monoid (a -> b) where
+    mempty = pure mempty
+
+    mappend = liftA2 mappend
+\end{verbatim}
+
+\begin{description}
+\item[Associativity law] 
+\item[Left/Right Identity law] 
+\end{description}
+
+\subsection{garbage}
+ There are several methods to verify software.
+being able to replace equals by equals.
+In this article we will look at technique of equational reasoning to prove type class laws. If we can rely on known properties of your program, we minimize unexpected behavior.
+
+
+ In addition, they exhibit certain properties. These properties are called laws. 
+
+
+For example the type class \verb|Functor| makes sure that we can apply the function \verb|fmap| with a type that is part of the \verb|Functor| type class. The type class dictates the behavior. All functors are expected to exhibit certain kinds of properties. These properties guarantee that the function \verb|fmap| only applies a function to all values inside the functor and doesn't change the structure or the context. The expression
+\begin{verbatim}
+dontchangecontext = do line <- fmap reverse getLine
+                       putStrLn $ " "
+\end{verbatim}
+applies \verb|reverse| to the result of the IO function \verb|getLine| without changing the the input stream. 
+
+Type class instances from the standard library obey the type class laws. If we write new instances, it's our responsibility to check if the type class laws hold.
+It's in the responsibility of the programmer to check if the program behaves correctly. For most programmers it's hard to write a correct program at the first attempt. This leaves us with the question of how to verify the type class laws. 
+
+Properties are specified in form of equations. The source code must satisfy this equations. 
+
+
+The monoid laws are specified by the type class monoid.
