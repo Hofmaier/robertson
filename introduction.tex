@@ -1,26 +1,24 @@
 \section{Introduction}
 \label{sec:This}
 
-When I started learning functional programming I often read about the advandages of pure functional programming languages. One advandage is that they are great for \gls{verification} and equational reasoning \cite{Wadler87}.
-I didn't know precisely what equational reasoning is and how it can be used to verify certain properties of a program. I also didn't know what kind of properties of a program can be verified with equational reasoning.
-This article describes the verification method equational reasoning by example. 
+One of the advantages often claimed by pure functional programming languages is that they are great for \gls{verification} and \emph{equational reasoning} \cite{Wadler87}.
+When I started learning to program in a functional language I didn't know precisely what equational reasoning is and how it can be used to verify certain \emph{properties} of a program. I also didn't know what kind of properties of a program can be verified with equational reasoning. In order to grasp equational reasoning I wrote this article.
+This article describes the verification method equational reasoning by an intermediate example. 
 
 \subsection{Why use equational reasoning?}
 
-Equational reasoning can be used as a formal method for software verification. It possible to proof the correctness of a program. Correctness means that specified properties of the program hold for an arbitrary input. 
+Equational reasoning can be used as a formal method for software verification. It's a way to proof the correctness of a program. Correctness means that specified properties of the program hold for an arbitrary input. 
 
-A property of a program can be represended as an equation. For example
-
+A property of a program can be represented as an equation. For example
 \begin{equation}
   \label{eq:firstfunctorlaw}
 \text{fmap } \text{id}  =  \text{id}  
 \end{equation}
-
-is a property of the function \verb|fmap|. The function \verb|fmap| applies it's first parameter to every element in a container (mapping). The function \verb|id| is the identity function. This property says that appliing the function \verb|fmap| with the argument \verb|id| is the same as appling the function \verb|id|. Put it another way, mapping the identiy function over every item in a container has no effect. Given a function definition of \verb|fmap| we can proof that this property holds using equational reasoning.
+is a property of the function \verb|fmap|. \footnote{The function \verb|fmap| takes a function \verb|a -> b| as it's first parameter and a container that contains elements of type \verb|a|. It returns a container with elements of type \verb|b|. This is called \emph{mapping}. The type of \verb|fmap| is \verb|(a -> b) -> a -> b|.} The function \verb|id| is the identity function. The property represented by equation \ref{eq:firstfunctorlaw} says that applying the function \verb|fmap| with the argument \verb|id| is the same as applying the function \verb|id|. Put it another way, mapping the identity function over every item in a container has no effect. Given a function definition of \verb|fmap|, we can proof that this property holds using equational reasoning.
 
 The goal of equational reasoning is to provide high reliability. 
 For example, the first formally verified micro kernel, seL4 was verified using formal verification to ensure proper security functionality and security assurance \cite{Klein09}.
-Another example is the streaming library pipes. The author, Gabriel Gonzales, used equational reasoning to prove the correctness of the library.
+Another example is the streaming library pipes. The author, Gabriel Gonzales, used equational reasoning to prove the correctness of the library \cite{gonzales13}.
 
 \subsection{Why are functional programming languages great for equational reasoning?}
 
@@ -33,17 +31,17 @@ This isn't possible in programs written in an imperative language because they a
 \begin{verbatim}
 x = 23
 \end{verbatim}
-we must not substitute \verb|x| with \verb|23| in your program. Arbritrary integers could be assigned to the variable \verb|x| in later statements of the program.
+we must not substitute \verb|x| with \verb|23| in your program. Arbitrary integers could be assigned to the variable \verb|x| in other statements of the program.
 
 The programming language Haskell is a purely functional language, which means that in general, functions in Haskell do not have side effects. Hence, we can verify Haskell program using equational reasoning. For this reason all examples in this article a written in Haskell.
 
 \subsection{What properties will we discuss?}
 
-Equational reasoning is used to proof if certain properties hold. In Haskell so called type classes dictate properties. Type classes are a concept to describe behavior of a type. They are very similar to interfaces but some type classes exihibit certain properties that every implementation must obey. Properties of type classes are called type class laws. Laws allow us to make assumption about the behavior of the program and reason about the code. Properties of existing code allow us to rely on expected behavior and deduce further properties for new code. Section \ref{sec:typeclasses} will give a short introduction to type classes. The example proof in section \ref{sec:example} will verify a type class law.
+Equational reasoning is used to proof if certain properties hold. In Haskell so called \emph{type classes} dictate properties. Type classes are a concept to describe behavior of a type. They are very similar to interfaces but some type classes exhibit certain properties that every implementation must obey. Properties of type classes are called type class laws. Laws allow us to make assumption about the behavior of the program and reason about the code. Properties of existing code allow us to rely on expected behavior and deduce further properties for new code. Section \ref{sec:typeclasses} will give a short introduction to type classes. The example proof in section \ref{sec:example} will verify a type class law.
 
 \subsection{Overview}
 
-This article will illustrate in detail how equational reasoning works in practice using the type class laws of monoid as the running example. Section \ref{sec:example} will walk through the process of proofing a certain property for a plugin system. We will proof that the type of the plugins obej the so called monoid laws with the methode equational reasoning.  The monoid laws are specified by the type class monoid. In order understand  example in \ref{sec:example} the first three sections will explain the fundamental concepts used in section \ref{sec:example}. The article doesn't require knowledge of type classes ands monoids. 
+This article will illustrate in detail how equational reasoning works in practice using the type class laws of monoid as the running example. Section \ref{sec:example} will walk through the process of proofing a certain property for a plugin system. We will proof that the type of the plugins obey the so called monoid laws with the method equational reasoning.  The monoid laws are specified by the type class monoid. In order understand  example in \ref{sec:example} the first three sections will explain the fundamental concepts used in section \ref{sec:example}. The article doesn't require knowledge of type classes and monoids. 
 Section \ref{sec:typeclasses} will give a short introduction to type classes with a few examples and section \ref{sec:monoid} describes monoids. In section \ref{sec:equationalreasoning} we will give an introduction to equational reasoning.
 
 This article give answers to the following questions:
@@ -56,13 +54,13 @@ This article give answers to the following questions:
  In addition, they exhibit certain properties. These properties are called laws. 
 
 
-For example the typeclass \verb|Functor| makes sure that we can apply the function \verb|fmap| with a type that is part of the \verb|Functor| type class. The type class dictates the behavior. All functors are expected to exhibit certain kinds of properties. These properties guarante that the function \verb|fmap| only applies a function to all values inside the functor and doesn't change the structure or the context. The expression
+For example the type class \verb|Functor| makes sure that we can apply the function \verb|fmap| with a type that is part of the \verb|Functor| type class. The type class dictates the behavior. All functors are expected to exhibit certain kinds of properties. These properties guarantee that the function \verb|fmap| only applies a function to all values inside the functor and doesn't change the structure or the context. The expression
 \begin{verbatim}
 dontchangecontext = do line <- fmap reverse getLine
                        putStrLn $ " "
 \end{verbatim}
-applies \verb|reverse| to the result of the IO function \verb|getLine| without changing the the inputstream. 
-If we can rely on known properties of your program, we minimise unexpected behavior.
+applies \verb|reverse| to the result of the IO function \verb|getLine| without changing the the input stream. 
+If we can rely on known properties of your program, we minimize unexpected behavior.
 
 Type class instances from the standard library obey the type class laws. If we write new instances, it's our responsibility to check if the type class laws hold.
 It's in the responsibility of the programmer to check if the program behaves correctly. For most programmers it's hard to write a correct program at the first attempt. This leaves us with the question of how to verify the type class laws. There are several methods to verify software. In this article we will look at technique of equational reasoning to prove type class laws. 
