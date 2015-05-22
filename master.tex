@@ -1,4 +1,4 @@
-\documentclass[twoside, a4paper]{article}
+\documentclass[twoside, a4paper, x11names]{article}
 \usepackage{amsmath}
 \usepackage{float}
 \usepackage{graphicx}
@@ -9,196 +9,32 @@
 \usepackage{hyperref}
 \usepackage[xindy]{glossaries}
 \usepackage{fancyvrb}
+\usepackage{tikz}
+\usetikzlibrary{er}
 \makeglossaries
 \newfloat{program}{thp}{lop}
 \floatname{program}{Listing}
 \VerbatimFootnotes
 \author{Lukas Hofmaier}
 \title{Verifying type class laws with equational reasoning}
-
-\newglossaryentry{verification}
-{
-name=verification,
-description={the evaluation of whether a system complies with a specification}
-}
-
-\newglossaryentry{referential_transparency}
-{
-name={referential transparency},
-description={an expression is said to be referential transparent if it can be replaced with its value without changing the behavior of a program.}
-}
-\newglossaryentry{adhoc_polymorphism}
-{
-name={ad hoc polymorphism},
-description={also known as function overloading or operator overloading. Polymorphic functions can be applied to arguments of different types, because a polymorphic function can denote a number of distinct implementations depending on the type of the arguments to which it is applied.}
-}
-\newglossaryentry{typeclass}
-{
-name={type class},
-description={ a type class is a type system construct that supports ad hoc polymorphism. This is achieved by adding constraints to type variables in parametrically polymorphic types.}
-}
-
+\input{glossary}
 \begin{document}
 
 \maketitle
-\tableofcontents
+%%\tableofcontents
 
-\begin{abstract}
-One of the appeals of pure functional programming is that it is possible to use  equational  reasoning. The reason is referential transparency and being able to replace equals by equals. This article explains what does it mean in programming practice by example.
-\end{abstract}
-
+\input{abstract}
 \input{introduction}
 \input{typeclass}
-\input{equational_reasoning}
-\input{example}
+\printglossary
+%
+%\input{equational_reasoning}
+%\input{example}
 
 \section{Conclusion}
 \label{sec:conclusion}
 Proving the behavior of our code was really tedious.
-
-\section{Pipes: A real world example}
-\label{sec:pipes}
-\todo{Abschnitt neu formulieren oder wegglassen}
-Pipes is a streaming library for Haskell. It was build with the following requirements \cite{gonzales13}.
-\begin{description}
-\item[Effects] Streams has to be effectful
-\item[Streaming] Processing in constant memory
-\item[Composability] Modules have to be composable
-\end{description}
-
-Pipes uses the type class \verb|Category| too keep the API simple and easy to use.
-
-This article will descipe a part of the library with an example.
-
-First we need a input stream, that emits values. Input streams are have the type 
-\verb|Producer a m ()|.
-Listing \ref{lst:simpleproducer} show a simple Producer. It emits the integers 1,2 and 3. It is also possible to create producers for effectful streams. We use the simple producer from Listing \ref{lst:simpleproducer} for simplicity reasons.
-
-\begin{program}
-\begin{verbatim}
-produceints123 :: Producer Int IO ()
-produceints123 = each [1,2,3]
-\end{verbatim}
-\caption{Simple Producer}
-\label{lst:simpleproducer}
-\end{program}
-
-Pipes provide the function \verb|for| to consume a producer. 
-\verb|for| \verb|producer| \verb|body| loops over the \verb|producer| and applies a the transformation defined in \verb|body| to every element yielded by the producer. If the body is of type \verb|Effect| it return an \verb|Effect|. If body is of type \verb|Producer| a \verb|Producer| is returned. The type declaration of \verb|for| 
-\begin{program}
-\begin{verbatim}
-for::Monad m=>
-Producer b m r
--> (b -> Producer c m ())
--> Producer c m r
-\end{verbatim}
-\caption{type of for}
-\end{program}
-
-A value for the body, could be function, that takes \verb|Int| and returns producer \verb|Producer a IO ()|. Hence the type declarion is \verb|Int -> Producer a IO ()|. We implement a body, that prints the integers to the standard input (strictly speaking this value is an effect of type \verb|Effect Int ()|. But \verb|Effect Int ()| is of type \verb|Producer Int IO () |).
-
-\begin{program}
-\begin{verbatim}
-print2stdout:: Int -> Effect IO ()
-print2stdout x = (lift . putStrLn . show ) x
-\end{verbatim}
-\caption{Definition of an effect, that prints to stdout}
-\label{lst:stdouteffect}
-\end{program}
-
-With the producer and the body we can define a \verb|Effect IO ()|
-\begin{verbatim}
-effect :: Effect IO ()
-effect = for produceints123 print2stdout
-\end{verbatim}
-
-Because the \verb|body| and of \verb|for| can be of type \verb|a -> Producer|, and the type of the return value is \verb|Producer|, it's possible to interleave several Producers.
-
-If we want to duplicate all element we write another body
-\begin{verbatim}
-duplicate :: Int -> Producer Int IO ()
-duplicate x = yield x >> yield x 
-\end{verbatim}
-
-We use \verb|for| to create a another producer. \verb|composed_producer| is a composition of \verb|produceints123| and \verb|duplicate|.
-\begin{verbatim}
-composed_producer :: Producer Int IO ()
-composed_producer = for produceints123 duplicate
-\end{verbatim}
-
-To compose \verb|composed_producer| with our \verb|print2stdout| effect, we apply the \verb|for| function
-
-\begin{verbatim}
-effect2 :: Effect IO ()
-effect2 = for composed_producer print2stdout
-\end{verbatim}
-
-In order to compose producers, the pipe library provides the \verb|~>| function. \verb|~>| is defined as follows:
-\begin{verbatim}
-(f ~> g) x = for (f x) g
-\end{verbatim}
-
-Hence we can write compose a body for \verb|for| like this:
-\begin{verbatim}
-composed_with_yield :: Int -> Effect IO ()
-composed_with_yield = duplicate ~> print2stdout
-\end{verbatim}
-
-Gabriel Gonzales proved that the \verb|~>| operator is associativ. It has the associativity property.
-
-\begin{verbatim}
- -- Associativity
- (f ~> g) ~> h = f ~> (g ~> h)
-\end{verbatim}
-
-Because the \verb|~>| operator is associativ, it doesnt matter in witch order the body is composed. The expected behavior is defined in term of cateory laws. It's possible to prove that the specified laws hold.
-
-\section{Appendix}
-\label{sec:appendix}
-
-
-\subsection{Function composition}
-
-\label{sec:functioncomposition}
-
-Function composition in mathematics is defined as
-
-\begin{equation}
-  \label{eq:functioncomposition}
-  (f \circ g)(x) = f(g(x))
-\end{equation}
-
-Haskell functions can be compose with the \verb|.| function.
-
-\begin{figure}
-  \centering
-\begin{verbatim}
-(.) :: (b -> c) -> (a -> b) -> a -> c
-f . g = \x -> f (g x)
-\end{verbatim}
-  \caption{. function}
-  \label{fig:compositionfunction}
-\end{figure}
-
-Function composition allows us to create a function by composing it with many small functions. 
-
-Functions in Haskell form a category in category theory. They satisfy the category laws.
-
-\subsection{Applicative function definition}
- The applicative instance is defined as follows:
-\begin{verbatim}
-instance Monoid b => Monoid (a -> b) where
-    mempty = pure mempty
-
-    mappend = liftA2 mappend
-\end{verbatim}
-
-\begin{description}
-\item[Associativity law] 
-\item[Left/Right Identity law] 
-\end{description}
-
 \bibliographystyle{plain}
 \bibliography{a}
-\printglossary
+
 \end{document}
