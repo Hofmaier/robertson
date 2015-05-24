@@ -1,8 +1,8 @@
 \section{Equational Reasoning}
 \label{sec:equationalreasoning}
 
-Verification is process of checking if the software does what the specification demands. To verify a program a specification is required. In the case of functions that implement an instance of the type classes of section \ref{sec:typeclasses} , the specification is defined in form of the type class laws.
-This section will compare different verification techniques and describe the method equational reasoning by example. In \ref{sec:example} equational reasoning will be applied to proof the property of listing \ref{lst:applicative2monoid} in section \ref{sec:typeclasses}.
+Verification is the process of checking if software does what it's specification demands. To verify a program, a specification is required. In the case of functions that implement an instance of the type classes of section \ref{sec:typeclasses} , the specification is defined in form of the type class laws.
+This section will compare different verification techniques and describe the method equational reasoning by example using type class laws as specification. In section \ref{sec:example} equational reasoning will be applied to proof the property of listing \ref{lst:monoidinstance1} in section \ref{sec:typeclasses}.
 
 There are several ways to check the behavior of a program. 
 We will describe the difference with a simple example. Given the following property:
@@ -11,43 +11,42 @@ We will describe the difference with a simple example. Given the following prope
   \label{eq:reverse_prop}
 \text{reverse} (\text{reverse } xs) = xs  
 \end{equation}
-
-The equation \ref{eq:reverse_prop} expresses, if we apply \verb|reverse| two times on the same list \verb|xs| we get back the original list \verb|xs|. \verb|reverse| is the inverse of \verb|reverse|. Verification techniques allow us to check if equation \ref{eq:reverse_prop} holds. We describe 3 techniques:
+The equation \ref{eq:reverse_prop} expresses, if we apply \verb|reverse| two times on the same list \verb|xs| we get back the original list \verb|xs|. \verb|reverse| is the inverse of \verb|reverse| (other functions, like \verb|id|, have this property too). Verification techniques allow us to check if equation \ref{eq:reverse_prop} holds. We describe 3 techniques. The first two, testing and quickcheck, are very common and the third is the topic of this article.
 
 \begin{description}
-\item[Testing] Run the program with a selected input and check if it behaves as expected. In order to check the behavior a function evaluates both sites of the equation \ref{eq:reverse_prop} and compares the values.The following listing shows an example test.
+\item[Testing] Run the program with a selected input and check if it behaves as expected. In order to check the behavior, a function evaluates both sites of the equation \ref{eq:reverse_prop} and compares the values.The following listing shows an example test.
 
-\begin{verbatim}
+\begin{lstlisting}[caption={function defintion for testing},label={lst:testing}]
 input = [1,2,3]
 
 test_reverse :: [Int] -> Bool
 test_reverse xs = reverse (reverse xs) == xs
-\end{verbatim}
+\end{lstlisting}
 
-The selected input is \verb|[1,2,3]|. \verb|test_reverse| evaluates to a Boolean expression to indicate if the property holds. It's necessary to run the program.
-An advantage of this method is, that the programmer hasn't to define general properties. The specification is expressed with a concrete input value and a concrete output value. It's easier to think about a concrete input and the corresponding 
+The selected input is \verb|[1,2,3]|. \verb|test_reverse| evaluates to a Boolean expression to indicate if the property holds for the given input. It's necessary to run the program to evaluate \verb|test_reverse|.
+An advantage of this method is, that the programmer don't have to define general properties. The specification is expressed with a concrete input value and a concrete output value. It's easier to think about a concrete input and the corresponding output value than to find general properties that a function must obey.
 \item[Property-based testing] The input for the test program is generated randomly. The test are executed by a tool (e.g. Quickcheck)
 \item[Proof] A Proof can shows that a property holds in all circumstances. To proof a property we use the technique equational reasoning. This technique requires knowledge of the function definition.
 \end{description}
 
-Figure \ref{fig:property_validation} compares the input coverage of the described methods. The rest of the section will only describe equational reasoning
+Figure \ref{fig:property_validation} compares the input coverage of the described methods. Testing checks if the program behaves correctly with one chosen point of the input space. Property-based testing checks the behavior at hundreds of randomly-generated points. Proof covers all possible cases of the possible input. It is the most reliable verification.
 
 \begin{figure}
   \centering
-     \includegraphics[width=0.9\textwidth]{comp}
+     \includegraphics[width=0.9\textwidth]{testing}
   \caption{Comparison of test, property-based-testing and proof}
   \label{fig:property_validation}
 \end{figure}
 
-Equational reasoning isn't a method only used for or motivated from program verification. Equational reasoning is the process of substituting expressions. With equational reasoning we are able to show that certain algebraic properties hold.
-For example, it's possible to show that
+\subsection{Reasoning about algebraic properties}
 
+Equational reasoning is a method originaly used in algebra. It's the process of proofing a given property by substituting equal expressions.
+For example, it's possible to show that the following property holds:
 \begin{equation}
   \label{eq:sum}
   (x+a)(x+b) = x^2 + (a+b)x+ab
 \end{equation}
-
-is true. To show that the equality holds we have to substitute the expression on the left-hand side with the help of the basic algebraic properties of numbers (commutative, associative, distributive) \cite{hutton}. We could substitute the left-hand side as follows:
+To show that the equality holds, we have to substitute the expression on the left-hand side with the help of the basic algebraic properties of numbers (commutative, associative, distributive) until it is equal to the right-hand side of equation \ref{eq:sum} \cite{hutton}. We could substitute the left-hand side as follows:
 
 \begin{equation}
   \label{eq:algebra}
@@ -61,8 +60,9 @@ x^2 + ax + bx + ab = x^2 + ax + bx + ab \text{     (use commutativity)}
 \begin{equation}
 x^2 + ax + bx + ab = x^2 + (a + b)x + ab \text{     (use distributivity)}
 \end{equation}
+All we did, was substituting expression according the algebraic properties 
 
-All we did, was substituting expression according the algebraic properties.
+\subsection{Reasoning about Haskell programs}
 
 A function definition in Haskell means that we can substitute the left-hand side with the right-hand side and vice versa. This is possible because haskell is a pure functional language and side-effects are encapsulated in monads. Hence, we can use the same approach to proof that a property of Haskell program holds, as we used to reason about mathematical expressions. 
 For example, it's possible to show that 
