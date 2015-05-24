@@ -1,0 +1,11 @@
+
+\section{Conclusion}
+
+This article illustrated the verification method equational reasoning by example. We proved that the the monoid law, left identity, holds for a given function defintion. 
+
+The type class laws provide specification for the verification process. In addition we can rely on properties of existing definitions to prove further properties.
+
+Type classes allow us to generalize definitions. A prove for the generalization is valid for all specializations. Hence, the proof is reusable.
+
+The examination of the topic improved my comprehension for the advantages of a purely functional language. The reason why verification in purel functional language like Haskell is easier, is because functions are just equalities. We can reason about Haskell code in the same way we reason about mathematical equations. The definition is stateless. This fact doesn't applies to mainstream languages. A function definition of an imperative language is allowed to change the context. These defintions are statefull.
+Personaly I found the process of proving the left identity law for the given defintion tedious and demanding. The proof requires creativity and a strong mathematical background. The verification process would be too cumbersome and expensive to apply it to every piece of sofware. I think it isn't necessesary to use equational reasoning for every function but it's important to know the difference between testing and verification by proof.
