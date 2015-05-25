@@ -9,15 +9,15 @@ This article describes the verification method equational reasoning by a practic
 
 Equational reasoning can be used as a formal method for software verification. It's a way to proof the correctness of a program. Correctness means that specified properties of the program hold for an arbitrary input. 
 
-A property of a program can be specified in the form of an equation. For example
+A property of a program can be specified in the form of an equation. For example the following equation states a property of the function \verb|fmap|  \footnote{The function \verb|fmap| takes a function \verb|a -> b| as it's first parameter and a container that contains elements of type \verb|a|. It returns a container with elements of type \verb|b|. This is called \emph{mapping}. The type of \verb|fmap| is \verb|(a -> b) -> a -> b|.}.
 \begin{equation}
   \label{eq:firstfunctorlaw}
 \text{fmap } \text{id}  =  \text{id}  
 \end{equation}
-is a property of the function \verb|fmap|. \footnote{The function \verb|fmap| takes a function \verb|a -> b| as it's first parameter and a container that contains elements of type \verb|a|. It returns a container with elements of type \verb|b|. This is called \emph{mapping}. The type of \verb|fmap| is \verb|(a -> b) -> a -> b|.} The function \verb|id| is the identity function. The property represented by equation \ref{eq:firstfunctorlaw} says that applying the function \verb|fmap| with the arguments \verb|id| and an arbritrary container is the same as applying the function \verb|id| on a container. Put it another way, calling \verb|fmap id| only applies the identity function to every item of a container and has no effect(it does nothing more). Given a function definition of \verb|fmap|, we can check if this property holds or not using equational reasoning.
+ The function \verb|id| is the identity function. The property represented by equation \ref{eq:firstfunctorlaw} says that applying the function \verb|fmap| with the arguments \verb|id| and an arbritrary container is the same as applying the function \verb|id| on a container. Put it another way, mapping the identity function over every item in a container has no effect. Given a function definition of \verb|fmap|, we can check if this property holds or not using equational reasoning.
 
-The goal of equational reasoning is to provide certainty that a program has particular properties. Proof of required properties contribute to the reliability and robustness of software. 
-For example, the first formally verified micro kernel, seL4 was verified using formal verification to ensure proper security functionality and security assurance \cite{Klein09}.
+The goal of equational reasoning is to provide certainty that a program has particular properties. Proof of required properties contribute to the reliability and robustness of a software. 
+For example, the first formally verified micro kernel, seL4 was verified using Haskell and formal verification to ensure proper security functionality and security assurance \cite{Klein09}.
 Another example is the streaming library "pipes". The author, Gabriel Gonzales, used equational reasoning to prove the correctness of the library \cite{gonzales13}.
 
 \subsection{Why are functional programming languages great for equational reasoning?}
@@ -30,9 +30,9 @@ x = 23
 \end{verbatim}
 That means that any \verb|x| can substituted by \verb|23|.
 
-This isn't possible in programs written in an imperative language because in imperative languages the value of an expression dependents on the context of the execution environment. In an imperative language \verb|x = 23| is an assigment, not an equality. The variable \verb|x| is mutable and the value of the expression \verb|x| can change during runtime. Hence, we must not substitute \verb|x| with \verb|23| in your program because arbitrary values could be assigned to the variable \verb|x| in other statements of the program.
+This isn't possible in programs written in an imperative language because in imperative languages the value of an expression depends on the context of the execution environment. In an imperative language \verb|x = 23| is an assigment, not an equality. The variable \verb|x| is mutable and the value of the expression \verb|x| can change at runtime. Hence, we must not substitute \verb|x| with \verb|23| in your program because arbitrary values could be assigned to the variable \verb|x| in other statements of the program.
 
-The programming language Haskell is a purely functional language, which means that functions do not have side effects. Hence, we can verify Haskell program using equational reasoning. For this reason all examples in this article are written in Haskell.
+The programming language Haskell is a purely functional language, which means that functions do not have side effects. Hence, we can verify Haskell programs using equational reasoning. For this reason all examples in this article are written in Haskell.
 
 \subsection{What properties will we discuss?}
 
