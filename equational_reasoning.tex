@@ -16,7 +16,7 @@ The equation \ref{eq:reverse_prop} expresses, if we apply \verb|reverse| two tim
 \begin{description}
 \item[Testing] Run the program with a selected input and check if it behaves as expected. In order to check the behavior, a function evaluates both sites of the equation \ref{eq:reverse_prop} and compares the values.The following listing shows an example test.
 
-\begin{lstlisting}[caption={function defintion for testing},label={lst:testing}]
+\begin{lstlisting}[caption={function definition for testing},label={lst:testing}]
 input = [1,2,3]
 
 test_reverse :: [Int] -> Bool
@@ -40,7 +40,7 @@ Figure \ref{fig:property_validation} compares the input coverage of the describe
 
 \subsection{Reasoning about algebraic properties}
 
-Equational reasoning is a method originaly used in algebra. It's the process of proofing a given property by substituting equal expressions.
+Equational reasoning is a method originally used in algebra. It's the process of proofing a given property by substituting equal expressions.
 For example, it's possible to show that the following property holds:
 \begin{equation}
   \label{eq:sum}
@@ -65,7 +65,7 @@ All we did, was substituting expression according the algebraic properties
 \subsection{Reasoning about Haskell programs}
 
 A function definition in Haskell means that we can substitute the left-hand side with the right-hand side and vice versa. This is possible because Haskell is a purely functional language. Hence, we can use the same approach to proof that a property of Haskell program holds, as we used to reason about mathematical expressions. 
-For example, it's possible to show that the length of a list with one element is acutally 1 \footnote{this statement seems trivial and dull but I choose as simple example in order to explain equational reasoning. The property in the next section is more interesting.}. This general property can be formed as boolean expression in Haskell.
+For example, it's possible to show that the length of a list with one element is actually 1 \footnote{this statement seems trivial and dull but I choose as simple example in order to explain equational reasoning. The property in the next section is more interesting.}. This general property can be formed as Boolean expression in Haskell.
 \begin{verbatim}
 length [x] == 1
 \end{verbatim}
@@ -112,7 +112,7 @@ We explain proof by structural induction with another example. We verify that th
 In order to verify property \ref{eq:lengthprop}, we need the function definitions for \verb|length| and \verb|(++)|.
 The Prelude functions \verb|length| and \verb|(++)| are given in listing \ref{lst:lengthdefinition} and \ref{lst:concatdefintion}.
 
-\begin{lstlisting}[caption={Haskell function defintion of the concatenation operator},label={lst:concatdefintion}]
+\begin{lstlisting}[caption={Haskell function definition of the concatenation operator},label={lst:concatdefintion}]
 [] ++ xs = xs
 (x:xs) ++ ys = x:(xs++ys)
 \end{lstlisting}
