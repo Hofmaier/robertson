@@ -64,35 +64,32 @@ All we did, was substituting expression according the algebraic properties
 
 \subsection{Reasoning about Haskell programs}
 
-A function definition in Haskell means that we can substitute the left-hand side with the right-hand side and vice versa. This is possible because haskell is a pure functional language and side-effects are encapsulated in monads. Hence, we can use the same approach to proof that a property of Haskell program holds, as we used to reason about mathematical expressions. 
-For example, it's possible to show that 
+A function definition in Haskell means that we can substitute the left-hand side with the right-hand side and vice versa. This is possible because Haskell is a purely functional language. Hence, we can use the same approach to proof that a property of Haskell program holds, as we used to reason about mathematical expressions. 
+For example, it's possible to show that the length of a list with one element is acutally 1 \footnote{this statement seems trivial and dull but I choose as simple example in order to explain equational reasoning. The property in the next section is more interesting.}. This general property can be formed as boolean expression in Haskell.
 \begin{verbatim}
 length [x] == 1
 \end{verbatim}
-no matter what \verb|x| is. If we have to prove this equality, we would first substitute \verb|length| with it's definition. If the definition is an expression with function calls we have to substitute them as well and so forth until only the value 1 remains.
+The property holds no matter what \verb|x| is. To show that, we use the \gls{function-definition} of \verb|length| as a general description of the behavior. Listing \ref{lst:lengthdefinition} shows the definition of \verb|length| \cite{hutton}.
+\begin{lstlisting}[caption={function definition of length},label={lst:lengthdefinition}]
+length [] = 0
+length (x:xs) = 1 + length xs  
+\end{lstlisting}
 
-This article will only describe proofs with programs, which halts. An evaluation can go on forever.
-\begin{verbatim}
-f x = 1 + f x
-\end{verbatim}
-
-The value of the expression is undefined. The proofs in this article hold only for defined expressions and finite lists..
-
-Equational reasoning is use-full because
-\begin{itemize}
-\item it allows to verify properties of a program.
-\item it can be used to eliminate expensive function call while preserving behavior
-\end{itemize}
+To conclude that \verb|length [x] == 1| is always true, we substitute \verb|length [x]| until we get \verb|1|. Listing \ref{lst:lengthproof} shows the step by step substitution.
+\begin{lstlisting}[caption={Deduce that the length of a list with one element is 1},label={lst:lengthproof}]
+length [x] = 
+length (x:[])   -- [x] is the same as x:[]
+1 + length []   -- apply definition
+1 + 0           -- apply defintion
+1               -- 1 + 0 = 0
+\end{lstlisting}
+Function definitions are general description and we can use them to deduce other general properties by substituting equal expressions. Put another way, listing \ref{lst:lengthproof} shows a \gls{symbolic_eval}.
 
 \subsection{Proof by structural induction}
 \label{sec:induction}
 
 If we apply simple substitution to a recursive function, we run into problems.
-Consider the following definition:
-\begin{verbatim}
-length [] = 0
-length (x:xs) = 1 + length xs
-\end{verbatim}
+Consider the \gls{function-definition} of \verb|length| in listing \ref{lst:lengthdefinition}.
 If we substitute \verb|length x| with the definition \verb|1 + length xs|, we end up substituting \verb|length x| forever. A way to verify recursive programs is to use proof by structural induction.  
 Structural induction for proofing a property can be used for list or algebraic data types with a recursive constructor (e.g. Tree).
 
@@ -107,22 +104,18 @@ If we use structural induction we proof the base case. We show that the property
 
 In a recursive function definition we define \verb|f (x:xs)| and use \verb|f x| in the right-hand side. In the proof we show that $p(n+1)$ with the assumption $p(n)$.
 
-We explain proof by structural induction with a simple example. Given the following property:
+We explain proof by structural induction with another example. We verify that the overall length of two concatenated lists $xs$ and $ys$, is the same as the sum of the length of $xs$ and the length of $ys$.  The ++-operator concatenates two lists.
 \begin{equation}
   \label{eq:lengthprop}
-  \text{length (xs ++ ys)} = \text{(length xs) ++ (length ys)}
+  \text{length (xs ++ ys)} = \text{(length xs) + (length ys)}
 \end{equation}
-We need the function definitions for \verb|length| and \verb|(++)|.
-The Prelude functions \verb|length| and \verb|(++)| are defined as follows:
-\begin{verbatim}
-length [] = 0
-length (x:xs) = 1 + length 
-\end{verbatim}
+In order to verify property \ref{eq:lengthprop}, we need the function definitions for \verb|length| and \verb|(++)|.
+The Prelude functions \verb|length| and \verb|(++)| are given in listing \ref{lst:lengthdefinition} and \ref{lst:concatdefintion}.
 
-\begin{verbatim}
+\begin{lstlisting}[caption={Haskell function defintion of the concatenation operator},label={lst:concatdefintion}]
 [] ++ xs = xs
 (x:xs) ++ ys = x:(xs++ys)
-\end{verbatim}
+\end{lstlisting}
 
 \begin{description}
 \item[Base case]
@@ -130,7 +123,7 @@ We have to show that property \ref{eq:lengthprop} holds for the base case. The b
 In order to check if property \ref{eq:lengthprop} holds for the base case, we replace \verb|xs| with  \verb|[]|, leading to
 
 \begin{verbatim}
-length ([] ++ ys) = length [] + length ys
+length ([] ++ ys) == length [] + length ys
 \end{verbatim}
 
 We will evaluate the expression on the left-hand side and the right and side separately.
@@ -152,19 +145,18 @@ length ys
 When we evaluate each side of the equation \ref{eq:lengthprop} with the value \verb|[]| for \verb|xs|, the result is \verb|length ys| on both sides. Hence, property \ref{eq:lengthprop} holds for the base case.
 
 \item[Induction step]
- We have to prove that
-\begin{equation}
-  \label{eq:induction}
-    \text{length ((x:xs) ++ ys)} = \text{(length (x:xs)) ++ (length ys)}
-\end{equation}
+ We have to prove that the two expressions on both side of the \verb|=| sign in listing \ref{lst:inductionstep} are equal
+\begin{lstlisting}[caption={The left-hand side and the right-hand side have to be equal},label={lst:inductionstep}]
+length ((x:xs) ++ ys) = length (x:xs) + (length ys)
+\end{lstlisting}
 
 with the assumption (induction hypothesis)
 \begin{equation}
   \label{eq:induction_hypothesis}
-      \text{length (xs ++ ys)} = \text{(length xs) ++ (length ys)}
+      \text{length(xs ++ ys)} = \text{length(xs) + length(ys)}
 \end{equation}
 
-Again, we evaluate the the left-hand side of equation \ref{eq:induction}.
+Again, we evaluate the the left-hand side of equation in listing \ref{lst:inductionstep}.
 
 \begin{program}
 \begin{verbatim}
@@ -175,7 +167,7 @@ length (x:(xs ++ ys))      --apply definition of length
 \end{verbatim}
 \end{program}
 
-If we evaluate the right-hand side of the induction step in equation  \ref{eq:induction} we get:
+If we evaluate the right-hand side of the equation in listing \ref{lst:inductionstep} we get:
 \begin{program}
 \begin{verbatim}
 length (x:xs) + length ys    -- apply definition of length
@@ -183,9 +175,8 @@ length (x:xs) + length ys    -- apply definition of length
 \end{verbatim}
 \end{program}
 
-The last listing shows, that the equation \ref{eq:induction} follows from the induction hypothesis in equation \ref{eq:induction_hypothesis}. This completes the induction step and therefore the proof itself.
+The last listing shows, that the equality in listing \ref{lst:inductionstep} follows from the induction hypothesis in equation \ref{eq:induction_hypothesis}. This completes the induction step and therefore the proof itself.
 \end{description}
 
-In order to apply equational reasoning we used definitions of all functions in your program. Hence, equational reasoning demands that we have access to the source code or that the the library, we are using already exhibits proved properties. If we use packages from hackage \footnote{http://hackage.haskell.org} Haskell we can browse the source code. 
-
-Sometimes we can rely on proven properties. For example all types of the standard library, that are instance of a type class, satisfy the type class laws (see \ref{sec:typeclasses}) \cite{yorgey}. Some libraries exhibit properties in their documentation (e.g. pipes library of section \ref{sec:pipes} \cite{gonzales13}). 
+In the previous example used \glspl{function-definition} of \verb|length| and \verb|(++)|. In order to apply equational reasoning we have to know the function definitions of involved functions or we can rely on already proven properties. 
+For example all types of the standard library, that are instance of a type class, satisfy the type class laws (see \ref{sec:typeclasses}) \cite{yorgey}. Some libraries exhibit properties in their documentation (e.g. pipes library of section \ref{sec:pipes} \cite{gonzales13}). 
