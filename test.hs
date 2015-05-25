@@ -13,3 +13,4 @@ showlist :: Show a => [a] -> String
 showlist [] = ""
 showlist (x:xs) = show x ++ showlist xs
 
+lengthtest x xs y ys = length ((x:xs) ++ ys) == length (x:xs) + (length ys)
