@@ -9,7 +9,7 @@ This article describes the verification method equational reasoning by a practic
 
 Equational reasoning can be used as a formal method for software verification. It's a way to proof the correctness of a program. Correctness means that specified properties of the program hold for an arbitrary input. 
 
-A property of a program can be specified in the form of an equation. For example the following equation states a property of the function \verb|fmap|  \footnote{The function \verb|fmap| takes a function \verb|a -> b| as it's first parameter and a container that contains elements of type \verb|a|. It returns a container with elements of type \verb|b|. This is called \emph{mapping}. The type of \verb|fmap| is \verb|(a -> b) -> a -> b|.}.
+A property of a program can be specified in the form of an equation. For example the following equation states a property of the function \verb|fmap|  \footnote{The function \verb|fmap| takes a function \verb|a -> b| as it's first parameter and a container that contains elements of type \verb|a|. It returns a container with elements of type \verb|b|. This is called \emph{mapping}. The type of \verb|fmap| is \verb|(a -> b) -> f a -> f b|.}.
 \begin{equation}
   \label{eq:firstfunctorlaw}
 \text{fmap } \text{id}  =  \text{id}  
