@@ -1,8 +1,10 @@
 \begin{abstract}
-One of the appeals of a purely functional programming language, like Haskell, is that it is substantially easier to verify the correctness of a program. The reason is referential transparency. The fact that function definitions in Haskell are equality's, allows us to reason about properties of a program by substituting expression with equal expressions. This technique is called equational reasoning.
+One of the appeals of a purely functional programming language, like Haskell, is that it is substantially easier to verify the correctness of a program. The reason is referential transparency. The fact that function definitions in Haskell are equality's, allows us to reason about properties of a program by substituting expression with equal expressions. This technique is called equational reasoning. This report will describes how equational reasoning can be used to verify a Haskell program.  
 
-Correctness of a program is specified in form of equations. Some type classes in Haskell exhibit properties in form of equations. These properties are called ``type class laws''.  Every corresponding type class instance is expected to obey these laws. These properties ensure certain desirable behavior (e.g. associativity), or they can be used to conclude further properties. To proof the correctness of a type class law, equational reasoning can be used. 
+Correctness of a program is specified in form of equations. Some type classes in Haskell exhibit properties in form of equations. These properties are called ``type class laws''.  Every corresponding type class instance is expected to obey these laws. These properties ensure certain desirable behavior (e.g. associativity), or they can be used to conclude further properties. To proof the correctness of a type class law, equational reasoning can be used. In this report we give a brief description of the concept of a type class and we describe the type class \verb|Monoid| and its type class laws in more detail. 
 
-In comparison with testing, equational reasoning covers not just one possible case of input but all cases. A proved property holds under all circumstances.
+In comparison with testing, equational reasoning covers not just one possible case of input but all cases. A proved property holds under all circumstances. 
+
+The example is based on a blog post of Gabriel Gonzales. In the example we apply equational reasoning to proof a type class law for a simple plugin system written in Haskell. In addition we will give a brief description of the concepts of a type class and equational reasoning. 
 
 \end{abstract}
