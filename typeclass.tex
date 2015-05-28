@@ -47,7 +47,7 @@ In Haskell there is a type class for monoids. Type that form a monoid can become
 
 Members of the type class \verb|Monoid| have to implement the functions \verb|mempty| and \verb|mappend| amongst others.
 
-These functions have the following type signature declaration. The type variable \verb|m| is the type of the corresponding monoid.
+These functions have the following type signature declaration. The type variable \verb|m| is the type of the corresponding monoid (listing \ref{lst:monoiddefinition} in the appendix, section \ref{sec:monoiddefinition} shows the complete definition of the type class \verb|Monoid|).
 \begin{verbatim}
     mempty :: m
     mappend :: m -> m -> m
