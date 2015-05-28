@@ -312,3 +312,19 @@ fmap (g . h) = fmap g . fmap h
   \caption{Interrelationship of Functor and Applicative }
   \label{fig:functor_applicative}
 \end{figure}
+
+
+
+\subsubsection{Applicative function definition}
+ The applicative instance is defined as follows:
+\begin{verbatim}
+instance Monoid b => Monoid (a -> b) where
+    mempty = pure mempty
+
+    mappend = liftA2 mappend
+\end{verbatim}
+
+\begin{description}
+\item[Associativity law] 
+\item[Left/Right Identity law] 
+\end{description}
