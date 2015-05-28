@@ -71,7 +71,7 @@ ghci> pure (*) <*> Just 3 <*> Just 23
 Just 69
 \end{verbatim}
 
-The following type are instances of the type class \verb|Applicative| \todo{instances beschreiben}
+The following type are instances of the type class \verb|Applicative|:
 
 \begin{itemize}
 \item Maybe
@@ -87,20 +87,18 @@ There are several laws that \verb|Applicative| instances should satisfy \cite{mc
 \item \verb|pure f <*> pure x = pure (f x)|
 \end{enumerate}
 
-\todo{Handskizzen durch grafik ersetzen}The second law says that applying \verb|fmap| over a normal function \verb|g| over a functor \verb|x| is the same as putting \verb|g| in a default context and mapping the resulting function over \verb|x|.
+The second law says that applying \verb|fmap| over a normal function \verb|g| over a functor \verb|x| is the same as putting \verb|g| in a default context and mapping the resulting function over \verb|x|.
 
 The third law says that it doesn't matter if we put the values \verb|f| and \verb|x| in a default context first and then apply \verb|<*>| or if we call \verb|f| on \verb|x| first and then put them in a default context. We will use this property to prove another property in section \ref{sec:exampleproof}
 
-\subsubsection{Applicative function definition}
- The applicative instance is defined as follows:
-\begin{verbatim}
-instance Monoid b => Monoid (a -> b) where
-    mempty = pure mempty
+\subsection{Monoid}
+\label{sec:monoiddefinition}
 
-    mappend = liftA2 mappend
-\end{verbatim}
-
-\begin{description}
-\item[Associativity law] 
-\item[Left/Right Identity law] 
-\end{description}
+The type class \verb|Monoid| is defined in the Module \verb|Data.Monoid|. Listing \ref{lst:monoiddefinition} shows the definition.
+\begin{lstlisting}[label={lst:monoiddefinition}, caption={Definition of type class monoid}]
+class Monoid m where
+  mempty :: m
+  mappend :: m -> m -> m
+  mconcat :: [m] -> m
+  mconcat = foldr mappend mempty
+\end{lstlisting}
