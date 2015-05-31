@@ -9,7 +9,7 @@ This article describes the verification method equational reasoning by a practic
 
 Equational reasoning can be used as a formal method for software verification. It's a way to proof the correctness of a program. Correctness means that specified properties of the program hold for an arbitrary input. 
 
-A property of a program can be specified in the form of an equation. For example the following equation states a property of the function \verb|fmap|  \footnote{The function \verb|fmap| takes a function \verb|a -> b| as it's first parameter and a container that contains elements of type \verb|a|. It returns a container with elements of type \verb|b|. This is called \emph{mapping}. The type of \verb|fmap| is \verb|(a -> b) -> f a -> f b|.}.
+A property of a program can be specified in the form of an equation. For example the following equation states a property of the function \verb|fmap|  \footnote{The function \verb|fmap| takes a function \verb|a -> b| as its first parameter and a container that contains elements of type \verb|a|. It returns a container with elements of type \verb|b|. This is called \emph{mapping}. The type of \verb|fmap| is \verb|(a -> b) -> f a -> f b|.}.
 \begin{equation}
   \label{eq:firstfunctorlaw}
 \text{fmap } \text{id}  =  \text{id}  
@@ -24,7 +24,7 @@ Another example is the streaming library "pipes". The author, Gabriel Gonzales, 
 
 An equation is a statement that two expressions are equal (e.g. $1 + 3 = 4$). And reasoning is the process of thinking about something in a logical way in order to form a conclusion. The technique of equational reasoning implies that we show correctness by showing that two expression of a program are equal. 
 
-The reason why we can use equational reasoning in functional programming is \gls{referential_transparency}. A piece of code can be replaced by its value; this is true in purely functional languages. The absence of side effects allow us the replace the left-hand side of a definition with the right-hand side and vice verca. For example if you have the following Haskell definition:
+The reason why we can use equational reasoning in functional programming is \gls{referential_transparency}. A piece of code can be replaced by its value; this is true in purely functional languages. The absence of side effects allow us to replace the left-hand side of a definition with the right-hand side and vice versa. For example if you have the following Haskell definition:
 \begin{verbatim}
 x = 23
 \end{verbatim}
@@ -36,14 +36,14 @@ The programming language Haskell is a purely functional language, which means th
 
 \subsection{What properties will we discuss?}
 
-Equational reasoning is used to proof that certain properties of a program hold. If we want to verify a program, we have to define one or more properties in the first place. This properties are part of the program specification. We could define arbitrary properties but this article mainly deals with properties derived from the so called \emph{type class laws}. In Haskell type class laws are exhibited by \glspl{typeclass}. For example, the property formed by equation \ref{eq:firstfunctorlaw} is a type class law of the type class \verb|Functor|(functors are described in appendix, section \ref{sec:functor}).
+Equational reasoning is used to proof that certain properties of a program hold. If we want to verify a program, we have to define one or more properties in the first place. These properties are part of the program specification. We could define arbitrary properties but this article mainly deals with properties derived from the so called \emph{type class laws}. In Haskell type class laws are exhibited by \glspl{typeclass}. For example, the property formed by equation \ref{eq:firstfunctorlaw} is a type class law of the type class \verb|Functor|(functors are described in appendix, section \ref{sec:functor}).
 
 Type classes are a concept to describe the behavior of a type. 
 They are very similar to interfaces. If we want to make a type an instance of a type class, we have to implement the functions given by the \glspl{typesignature} of the type class. Figure \ref{fig:typeclassrelation} illustrates the relation between values, types and type classes in Haskell. A type can be a member of several type classes. A type class can contain several types. A value has exactly one type and but several values can be of same type.
 
-An instance of a type class must obey the corresponding type class laws. Laws allow us to make assumptions about the behavior of the program and reason about the code. Properties of existing code allow us to rely on expected behavior and deduce further properties for new code. For example, if the property formed by equation \ref{eq:firstfunctorlaw} holds, we can rest assure that \verb|fmap| only applies the function to the items in the container and does nothing more, like changing the structure. If an implementation of \verb|fmap| would change the structure of the container, it would break the property of equation \ref{eq:firstfunctorlaw}.
+An instance of a type class must obey the corresponding type class laws. Laws allow us to make assumptions about the behavior of the program and to reason about the code. Properties of existing code allow us to rely on expected behavior and deduce further properties for new code. For example, if the property formed by equation \ref{eq:firstfunctorlaw} holds, we can rest assured that \verb|fmap| only applies the function to the items in the container and does nothing more, like changing the structure. If an implementation of \verb|fmap| would change the structure of the container, it would break the property of equation \ref{eq:firstfunctorlaw}.
 
-Type class laws aren't enforced by Haskell. We need to verify them yourself when implementing a instance. We can verify the correctness of these equations using equational reasoning to prove that the instances we build are sound. 
+Type class laws aren't enforced by Haskell. We need to verify them ourself when implementing a instance. We can verify the correctness of these equations using equational reasoning to prove that the instances we build are sound. 
 
 \tikzset{multi  attribute/.style={attribute ,double  distance=1.5pt}}
 \tikzset{derived  attribute/.style={attribute ,dashed}}
@@ -67,8 +67,8 @@ Type class laws aren't enforced by Haskell. We need to verify them yourself when
 \end{figure}
 \subsection{Overview}
 
-This article will illustrate in detail how equational reasoning works in practice using the type class laws of the type class \verb|Monoid| as the running example. Section \ref{sec:example} will walk through the process of proofing that an implementation of the \verb|Monoid| type class obeys the first monoid law.  In order understand every step of the process the first three sections will explain the fundamental concepts used in section \ref{sec:example}. The article doesn't require knowledge of type classes and \glspl{monoid}. 
-Section \ref{sec:typeclasses} will give a short introduction to type classes with and section \ref{sec:monoid} describes monoids. In section \ref{sec:equationalreasoning} we will give an introduction to equational reasoning in general before we proof the correctness of the example in section \ref{sec:example}.
+This article will illustrate in detail how equational reasoning works in practice using the type class laws of the type class \verb|Monoid| as the running example. Section \ref{sec:example} will walk through the process of proofing that an implementation of the \verb|Monoid| type class obeys the first monoid law.  In order to understand every step of the process the first three sections will explain the fundamental concepts used in section \ref{sec:example}. The article doesn't require knowledge of type classes or \glspl{monoid}. 
+Section \ref{sec:typeclasses} will give a short introduction to type classes and section \ref{sec:monoid} describes monoids. In section \ref{sec:equationalreasoning} we will give an introduction to equational reasoning in general before we proof the correctness of the example in section \ref{sec:example}.
 
 This article give answers to the following questions:
 \begin{itemize}
