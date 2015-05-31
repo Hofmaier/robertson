@@ -10,7 +10,7 @@ The concept of a type class was introduced as a construct that supports overload
 %%In this section we will describe relation between type classes and polymorphism.
 There are two types of polymorphism in Haskell \cite{Cardelli}: Parametric polymorphism and a \gls{adhoc_polymorphism}. Type classes are used for \gls{adhoc_polymorphism}.
 \begin{description}
-\item[Parametric polymorphism] Refers to a functions which work over more than one type. For example the library function \verb|length| returns the length of a list, that contains items of arbritrary type. It can be used to calculate the length of a list of integers, a list of strings, a list of booleans e.t.c. There are no constraints. The type of \verb|length| is
+\item[Parametric polymorphism] Refers to a functions which work over more than one type. For example the library function \verb|length| returns the length of a list \verb|[]|, that contains items of arbritrary type. It can be used to calculate the length of a list of integers, a list of strings, a list of booleans e.t.c. There are no constraints. The type of \verb|length| is
 \begin{verbatim}
 length :: [t] -> Int
 \end{verbatim}
