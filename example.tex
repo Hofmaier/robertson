@@ -1,40 +1,51 @@
 \section{Example proof for Monoid Laws}
 \label{sec:example}
-In this example we use equational reasoning (see section \ref{sec:equationalreasoning}) to prove the monoid laws (see section \ref{sec:monoid}) for a new type.
+In this section we use equational reasoning (see section \ref{sec:equationalreasoning}) to prove the monoid laws (see section \ref{sec:monoid}) for a new type.
 The following example is taken from a blog post of Gabriel Gonzales \cite{gonzales14}. 
 
-Suppose we want to build a plugin system. A plugin in our example is a \verb|IO| action, that takes a \verb|Char| value and does some work with it (e.g. log to a file, potentially with side effect). We demand the following requirements:
-\begin{itemize}
-\item We want to be able to add an arbitrary number of plugins.
-\item The plugins should be composable.
-\item The order we add the plugins must not matter.
-\end{itemize}
+Suppose we want to build a plugin system. A plugin in our example is a \verb|IO| action, that takes a \verb|Char| value and does some work with it (e.g. log to a file, potentially with side effect). Hence, a plugin is of type \verb|IO ( Char -> IO ())|. Listing \ref{lst:logtoplugin} shows the definition of the plugin \verb|logto|. It writes the first argument of the \verb|IO| action of type \verb|Char| to a file named \verb|log.txt|. It would be reasonable to parameterize the filename but in order to simplify the example the filename is hard code.
 
-A monoid instance satisfies all listed requirements. We could use the \verb|mappend| operator to compose several plugins. Hence, if we can prove that the plugins satisfy the monoid laws, we can combine them, using the monoid function \verb|mappend| and we are able to add plugins without concerning about the order of evaluation. In addition they are easier to use because, they will behave as expected.
+\begin{lstlisting}[caption={Definition of a plugin. It writes a character to a file.}, label={lst:logtoplugin}]
+import System.IO
+logto :: IO ( Char -> IO ())
+logto = do
+  handle <- openFile "log.txt" WriteMode
+  return (hPutChar handle)
+\end{lstlisting}
 
-The following listing shows the use of a plugin. The \verb|logto| function is a plugin. The program will read a character \verb|c| from the command line and apply the given plugin to \verb|c|.
+Listing \ref{lst:applyingaSinglePlugin} shows an application of the \verb|logto| plugin in the \verb|main| function. We bind the function of the plugin to the variable \verb|handleChar| and call it later with a character read from the standard input as argument (\verb|handleChar c|).
 
-\begin{verbatim}
+\begin{lstlisting}[caption={Calling the logto IO action in main}, label={lst:applyingaSinglePlugin}]
 main = do
     handleChar <- logto
     c <- getChar
     handleChar c
-\end{verbatim}
+\end{lstlisting}
 
-To append additional plugins, e.g. \verb|print2stdout|, we compose a new monoid with the \verb|mappend| function.
-\begin{verbatim}
-handleChar <- mappend logto print2stdout
-\end{verbatim}
-The definition of \verb|logTo| is shown in the following listing: 
+We want to be able to compose several plugins and the order we add the plugins must not matter. Listing \ref{lst:print2stdout} shows an additional plugin that prints the character to the standard output. In order to extend the program from listing \ref{lst:applyingaSinglePlugin}, we want to be able compose plugins. 
 
-\begin{verbatim}
-logTo :: IO ( Char -> IO ())
-logTo = do
-    handle <- openFile "log.txt" WriteMode
-    return (hPutChar handle)
-\end{verbatim}
+\begin{lstlisting}[caption={Definition of the plugin print2stdout}, label={lst:print2stdout}]
+print2stdout :: IO ( Char -> IO ())
+print2stdout = return (putChar)
+\end{lstlisting}
 
-The plugins are of type \verb|IO ( Char -> IO ())|. Hence we have to provide a monoid instance implementation for the type \verb|IO ( Char -> IO ())|. Instead of writing a specialized instance for \verb|IO ( Char -> IO ())|, we use the general implementation of section \ref{sec:monoid}.
+Listing \ref{lst:composition} gives an example of the composition of the plugins \verb|logto| and \verb|printstdout|. We apply the \verb|mappend| function from the \verb|Monoid| type class to \verb|logto| and \verb|print2stdout|. Both argument are of type \verb|IO ( Char -> IO ())|. The return value is of type \verb|IO ( Char -> IO ())| again. Of course listing \ref{lst:composition} only works if \verb|mappend| is implemented for the type \verb|IO ( Char -> IO ())|. We will give an implementation later in this section.
+
+\begin{lstlisting}[caption={Composition of two plugins}, label={lst:composition}]
+composedPlugin :: IO ( Char -> IO ())
+composedPlugin = mappend logto print2stdout
+\end{lstlisting}
+
+In addition, the order we add the plugins must not matter. The behavior of the plugins \verb|composed1| and \verb|composed2| from listing \ref{lst:order} should be the same.
+
+\begin{lstlisting}[caption={The order of the plugins must not matter.}, label={lst:order}]
+composed1 = mappend logto print2stdout
+composed2 = mappend print2stdout logto
+\end{lstlisting}
+
+The monoid laws state that \verb|mappend| must be associative. Hence, if we can prove that our implementation of \verb|mappend| satisfies the monoid laws, we can combine them, using the monoid function \verb|mappend| and we are able to add plugins without concerning about the order of evaluation. In addition they are easier to use because, they will behave as expected.
+
+The plugins are of type \verb|IO ( Char -> IO ())|. . Instead of writing a specialized instance for \verb|IO ( Char -> IO ())|, we use the general implementation of section \ref{sec:monoid}.
 The instance implementation is repeated for convenience:
 
 \begin{lstlisting}[caption={Monoid instance},label={lst:monoidinstance}]
@@ -107,7 +118,7 @@ One law of the \verb|Applicative| type class says:
 \begin{verbatim}
 pure f <*> pure x = pure (f x)
 \end{verbatim}
-We can use this property substitute the left-hand side. Next we write \verb|mappend mempty| as lambda function \verb|\a -> mappend mempty a| and use the monoid law
+We can use this property to substitute the left-hand side. Next we write \verb|mappend mempty| as lambda function \verb|\a -> mappend mempty a| and use the monoid law
 \begin{verbatim}
 mappend mempty x = x
 \end{verbatim}
