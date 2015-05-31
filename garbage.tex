@@ -328,3 +328,38 @@ instance Monoid b => Monoid (a -> b) where
 \item[Associativity law] 
 \item[Left/Right Identity law] 
 \end{description}
+
+In comparison to testing equational reasoning covers not just one possible case of input but all cases.
+
+
+Of course listing \ref{lst:compose} only works if \verb|mappend| is implemented for the type \verb|IO ( Char -> IO ())|. Hence we have to provide a monoid instance implementation for the type \verb|IO ( Char -> IO ())|.
+
+
+
+ requirements:
+\begin{itemize}
+\item We want to be able to add an arbitrary number of plugins.
+\item The plugins should be composable.
+\item The order we add the plugins must not matter.
+\end{itemize}
+
+. We could use the \verb|mappend| operator to compose several plugins. 
+
+The following listing shows the use of a plugin. The \verb|logto| function is a plugin. The program will read a character \verb|c| from the command line and apply the given plugin to \verb|c|.
+
+\begin{lstlisting}
+
+\end{lstlisting}
+
+To append additional plugins, e.g. \verb|print2stdout|, we compose a new monoid with the \verb|mappend| function.
+\begin{verbatim}
+handleChar <- mappend logto print2stdout
+\end{verbatim}
+The definition of \verb|logTo| is shown in the following listing: 
+
+\begin{verbatim}
+logTo :: IO ( Char -> IO ())
+logTo = do
+    handle <- openFile "log.txt" WriteMode
+    return (hPutChar handle)
+\end{verbatim}
