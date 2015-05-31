@@ -10,6 +10,12 @@ main = do
     c <- getChar
     handleChar c
 
+takechar :: Char -> IO ()
+takechar c = return ()
+
+--donothing :: IO ( Char -> IO ())
+--donothing = return 
+
 logto :: IO ( Char -> IO ())
 logto = do
   handle <- openFile "log.txt" WriteMode
