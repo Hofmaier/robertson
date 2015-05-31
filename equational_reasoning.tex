@@ -24,7 +24,7 @@ test_reverse xs = reverse (reverse xs) == xs
 \end{lstlisting}
 
 The selected input is \verb|[1,2,3]|. \verb|test_reverse| evaluates to a Boolean expression to indicate if the property holds for the given input. It's necessary to run the program to evaluate \verb|test_reverse|.
-An advantage of this method is, that the programmer don't have to define general properties. The specification is expressed with a concrete input value and a concrete output value. It's easier to think about a concrete input and the corresponding output value than to find general properties that a function must obey.
+An advantage of this method is, that the programmer doesn't have to define general properties. The specification is expressed with a concrete input value and a concrete output value. It's easier to think about a concrete input and the corresponding output value than to find general properties that a function must obey.
 \item[Property-based testing] The input for the test program is generated randomly. The test are executed by a tool (e.g. Quickcheck)
 \item[Proof] A Proof can shows that a property holds in all circumstances. To proof a property we use the technique equational reasoning. This technique requires knowledge of the function definition.
 \end{description}
@@ -54,7 +54,7 @@ To show that the equality holds, we have to substitute the expression on the lef
 \end{equation}
 
 \begin{equation}
-x^2 + ax + bx + ab = x^2 + ax + bx + ab \text{     (use commutativity)}
+x^2 + ax + xb + ab = x^2 + ax + bx + ab \text{     (use commutativity)}
 \end{equation}
 
 \begin{equation}
@@ -178,5 +178,5 @@ length (x:xs) + length ys    -- apply definition of length
 The last listing shows, that the equality in listing \ref{lst:inductionstep} follows from the induction hypothesis in equation \ref{eq:induction_hypothesis}. This completes the induction step and therefore the proof itself.
 \end{description}
 
-In the previous example used \glspl{function-definition} of \verb|length| and \verb|(++)|. In order to apply equational reasoning we have to know the function definitions of involved functions or we can rely on already proven properties. 
+The previous example used \glspl{function-definition} of \verb|length| and \verb|(++)|. In order to apply equational reasoning we have to know the function definitions of involved functions or we can rely on already proven properties. 
 For example all types of the standard library, that are instance of a type class, satisfy the type class laws (see \ref{sec:typeclasses}) \cite{yorgey}. Some libraries exhibit properties in their documentation (e.g. pipes library \cite{gonzales13}). 
