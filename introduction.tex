@@ -2,7 +2,7 @@
 \label{sec:This}
 
 One of the advantages often claimed by pure functional programming languages is that they are great for \gls{verification} and \emph{equational reasoning} \cite{Wadler87}.
-When I started learning to program in a functional language I didn't know precisely what equational reasoning is and how it can be used to verify certain \emph{properties} of a program. I also didn't know what kind of properties of a program can be verified with equational reasoning. In order to grasp equational reasoning I wrote this article.
+When I started learning to program in a functional language, I didn't know precisely what equational reasoning is and how it can be used to verify certain \emph{properties} of a program. I also didn't know what kind of properties of a program can be verified with equational reasoning. In order to grasp equational reasoning I wrote this article.
 This article describes the verification method equational reasoning by a practical example. 
 
 \subsection{Why use equational reasoning?}
@@ -17,7 +17,7 @@ A property of a program can be specified in the form of an equation. For example
  The function \verb|id| is the identity function. The property represented by equation \ref{eq:firstfunctorlaw} says that applying the function \verb|fmap| with the arguments \verb|id| and an arbitrary container, is the same as applying the function \verb|id| on a container. Put it another way, mapping the identity function over every item in a container has no effect. Given a function definition of \verb|fmap|, we can check if this property holds, using equational reasoning.
 
 The goal of equational reasoning is to provide certainty that a program has particular properties. Proof of required properties contribute to the reliability and robustness of a software. 
-For example, the first formally verified micro kernel, seL4 was verified using Haskell and formal verification to ensure proper security functionality and security assurance \cite{Klein09}.
+For example, the first formally verified micro kernel, seL4, was verified using Haskell and formal verification to ensure proper security functionality and security assurance \cite{Klein09}.
 Another example is the streaming library "pipes". The author, Gabriel Gonzales, used equational reasoning to prove the correctness of the library \cite{gonzales13}.
 
 \subsection{Why are functional programming languages great for equational reasoning?}
@@ -36,7 +36,7 @@ Haskell is a purely functional language, which means that functions do not have 
 
 \subsection{What properties will we discuss?}
 
-Equational reasoning is used to proof that certain properties of a program hold. If we want to verify a program, we have to define one or more properties. These properties are part of the program specification. We could define arbitrary properties but this article mainly deals with properties derived from the so called \emph{type class laws}. In Haskell, type class laws are exhibited by \glspl{typeclass}. For example, the property formed by equation \ref{eq:firstfunctorlaw} is a type class law of the type class \verb|Functor|(functors are described in appendix, section \ref{sec:functor}).
+Equational reasoning is used to proof that certain properties of a program hold. If we want to verify a program, we have to define one or more properties. These properties are part of the program specification. We could define arbitrary properties, but this article mainly deals with properties derived from the so called \emph{type class laws}. In Haskell, type class laws are exhibited by \glspl{typeclass}. For example, the property formed by equation \ref{eq:firstfunctorlaw} is a type class law of the type class \verb|Functor| (functors are described in appendix, section \ref{sec:functor}).
 
 Type classes are a concept to describe the behavior of a type. 
 They are very similar to interfaces. If we want to make a type an instance of a type class, we have to implement the functions given by the \glspl{typesignature} of the type class. Figure \ref{fig:typeclassrelation} illustrates the relation between values, types and type classes in Haskell. A type can be a member of several type classes. A type class can contain several types. A value has exactly one type but several values can be of the same type.
@@ -72,7 +72,7 @@ Section \ref{sec:typeclasses} will give a short introduction to type classes and
 
 This article give answers to the following questions:
 \begin{itemize}
-\item What are desired properties of your program? Where do the come from? Why are they useful?
+\item What are desired properties of your program? Where do they come from? Why are they useful?
 \item What is equational reasoning? What is the difference between testing and proofing? How do we use equational reasoning to verify properties of a program?
 \end{itemize}
 
