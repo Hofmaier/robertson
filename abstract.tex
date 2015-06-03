@@ -1,10 +1,9 @@
 \begin{abstract}
-One of the appeals of a purely functional programming language, like Haskell, is that it is substantially easier to verify the correctness of a program. The reason is referential transparency. The fact that function definitions in Haskell are equality's, allows us to reason about properties of a program by substituting expression with equal expressions. This technique is called equational reasoning. This report describes how equational reasoning can be used to verify a Haskell program.  
 
-Correctness of a program is specified in form of equations. Some type classes in Haskell exhibit properties in form of equations. These properties are called ``type class laws''.  Every corresponding type class instance is expected to obey these laws. These properties ensure certain desirable behavior (e.g. associativity), or they can be used to conclude further properties. To proof the correctness of a type class law, equational reasoning can be used. This report gives a brief description of the concept of a type class and describes the type class \verb|Monoid| and its type class laws in more detail. 
+One of the appeals of a purely functional programming language, like Haskell, is that it is substantially easier to verify the correctness of a program. The reason is referential transparency. The fact that function definitions in Haskell are equalities, allows us to reason about properties of a program by substituting expressions with equal expressions. This process is called equational reasoning.
 
-The report describes equational reasoning and compares it to program testing. An advantage of equational reasoning over software testing is that a proved property holds under all circumstances. Further the application of proof by induction for equational reasoning is explained.
-
-Finally, it walks through an example: the application of equational reasoning to proof a type class law for a simple plugin system written in Haskell. The example is based on a blog post of Gabriel Gonzales.
-
+Some type classes in Haskell exhibit properties, the so called “type class laws”, that every corresponding type class instance is expected to obey. These properties ensure certain desirable behavior (e.g. associativity), or they can be used to conclude further properties. Type class laws aren't enforced by the Haskell compiler, so we need to check them ourselfs.
+ 
+This report describes the technique equational reasoning and how it can be used to prove that a type class implementation obeys the corresponding type class laws. Further, it gives a brief description of the concept of a type class and describes the type class \verb|Monoid| and its laws in more detail.
+Finally, we walk through an application example. We use equational reasoning to proof a type class law for a simple plugin system written in Haskell. 
 \end{abstract}
