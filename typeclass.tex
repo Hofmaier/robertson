@@ -1,7 +1,7 @@
 \section{Type classes}
 \label{sec:typeclasses}
 
-The first part of this section will give a short description of the concept of a type class. The second part will describe monoids in general and the type class \verb|Monoid|. The example in section \ref{sec:example} will prove a monoid type class law. 
+The first part of this section will give a short description of the concept of a type class. The second part will describe monoids in general and the type class \verb|Monoid|.
 
 The concept of a type class was introduced as a construct that supports overloaded functions and \emph{\gls{adhoc_polymorphism}} \cite{Wadler}. Overloaded functions can be used with a variety of types, but with different definitions for the different types. For example, the function calls \verb|show 1| and \verb|show "hello"| use different \glspl{function-definition}. The function \verb|show 1| is of type \verb|Int -> String| and \verb|show "hello"| is of type \verb|String -> String|. The definition used depends on the type of the argument.  The next section will describe \gls{adhoc_polymorphism} and the relation to type classes in more detail.
 
@@ -43,7 +43,7 @@ In mathematics, a \gls{monoid} is an algebraic structure with single associative
 
 In Haskell there is a type class for monoids. Types that form a monoid can become part of the \verb|Monoid| type class. For example, the type list \verb|[]| forms a monoid. Two values of type list can always concatenated to another list with the \verb|++| operator. The empty list \verb|[]| is the identity element. 
 
-The example in section \ref{sec:example} shows a plugin system, that contains a monoid. Plugins can be composed with a binary operator. An arbitrary number of plugins can be composed to a single plugin. The order the plugins are added doesn't matter (\gls{associativity}). 
+The example in section \ref{sec:example} shows a plugin system that contains a monoid. Plugins can be composed with a binary operator. An arbitrary number of plugins can be composed to a single plugin. Because the composition operator is associative, plugins can be evaluated in arbitrary order.
 
 \subsubsection{Functions of the type class monoid}
 
@@ -62,7 +62,7 @@ When making monoid instances, we need to make sure that \verb|mempty| acts like 
   \label{eq:firstmonoidlaw}
   \text{mappend}(\text{mempty}, x) = x
 \end{equation}
-Equation \ref{eq:firstmonoidlaw} states that \verb|mempty| has to behave like the identity with respect to \verb|mappend|. When \verb|mappend| is applied with the identity and an other element \verb|x| of the monoid, we get back \verb|x|.
+Equation \ref{eq:firstmonoidlaw} states that \verb|mempty| has to behave like the identity with respect to \verb|mappend|. When \verb|mappend| is applied with the identity and an other element \verb|x| of the monoid, it returns \verb|x|.
 
 \subsubsection{Example monoid implementation}
 
@@ -71,7 +71,7 @@ There is a useful property of the \verb|Applicative| type class with respect to 
 \begin{figure}
   \centering
      \includegraphics[width=0.7\textwidth]{monoid}
-  \caption{An Applicative that encapsulates a monoid is a monoid}
+  \caption{An {\ttfamily Applicative} that encapsulates a {\ttfamily Monoid} is a {\ttfamily Monoid}}
   \label{fig:applicative_monoid}
 \end{figure}
 
@@ -82,6 +82,7 @@ keepspaces=true,
 captionpos=b
 }
 \begin{lstlisting}[caption={{\ttfamily Monoid} instance implementation of {\ttfamily IO}},label={lst:monoidinstance1}]
+
 
 
 {-# LANGUAGE FlexibleInstances #-} 

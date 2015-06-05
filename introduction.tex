@@ -35,7 +35,7 @@ Haskell is a purely functional language, which means that functions do not have 
 
 \subsection{What properties will we discuss?}
 
-Equational reasoning is used to prove that certain properties of a program hold. If we want to verify a program, we have to define one or more properties. These properties are part of the program specification. We could define arbitrary properties, but this article mainly deals with properties derived from the so called \emph{type class laws}. In Haskell, type class laws are exhibited by \glspl{typeclass}. For example, the property formed by equation \ref{eq:firstfunctorlaw} is a type class law of the type class \verb|Functor| (cf. appendix \ref{sec:functor}).
+If we want to verify a program, we have to define one or more properties. These properties are part of the program specification. We could define arbitrary properties, but this article mainly deals with properties derived from the so called \emph{type class laws}. In Haskell, type class laws are exhibited by \glspl{typeclass}. For example, the property formed by equation \ref{eq:firstfunctorlaw} is a type class law of the type class \verb|Functor| (cf. appendix \ref{sec:functor}).
 
 Type classes are a concept to describe the behavior of a type. 
 They are very similar to interfaces. If we want to make a type an instance of a type class, we have to implement the functions given by the \glspl{typesignature} of the type class. Figure \ref{fig:typeclassrelation} illustrates the relation between values, types and type classes in Haskell. A type can be a member of several type classes. A type class can contain several types. A value has exactly one type but several values can be of the same type.
@@ -73,6 +73,6 @@ Section \ref{sec:typeclasses} will give a short introduction to type classes and
 This article give answers to the following questions:
 \begin{itemize}
 \item What are desired properties of a program? Where do they come from? Why are they useful?
-\item What is equational reasoning? What is the difference between testing and proof? How do we use equational reasoning to verify properties of a program?
+\item What is equational reasoning? What is the difference between testing and property proving? How do we use equational reasoning to verify properties of a program?
 \end{itemize}
 

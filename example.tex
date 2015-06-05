@@ -1,4 +1,4 @@
-\section{Example proof for Monoid Laws}
+\section{Example Proof for Monoid Laws}
 \label{sec:example}
 In this section we use equational reasoning (see section \ref{sec:equationalreasoning}) to prove the left identity law of the monoid type class (see section \ref{sec:monoid}) for a new type.
 The following example is based on a blog post of Gabriel Gonzales \cite{gonzales14}. We simplified the types of a plugin and extended the example with an additional plugin implementation.
@@ -35,11 +35,11 @@ composedPlugin :: Char -> IO ()
 composedPlugin  = logto `mappend` print2stdout
 \end{lstlisting}
 
-In addition, we demand that the order in which we evaluate the plugins must not matter. The plugins have to work independently of each other. For example, the behavior of the plugins \verb|composed1| and \verb|composed2| from listing \ref{lst:order} is the same.
+In addition, we demand that the order in which we evaluate the plugins must not matter. The plugins have to work independently of each other. For example, the behavior of the plugins \verb|composed1| and \verb|composed2| from listing \ref{lst:evaluateorder} should be the same (\verb|donothing| is another plugin of type \verb|Char -> IO ()|).
 
-\begin{lstlisting}[caption={The order of the plugins must not matter.}, label={lst:order}]
-composed1 = mappend logto print2stdout
-composed2 = mappend print2stdout logto
+\begin{lstlisting}[caption={The order in which we evaluate the plugins does not matter}, label={lst:evaluateorder}]
+composed1 = logto `mappend` (print2stdout `mappend` donothing)
+composed2 = (logto `mappend` print2stdout) `mappend` donothing
 \end{lstlisting}
 
 The monoid laws state that \verb|mappend| must be associative. Hence, if we can prove that our implementation of \verb|mappend| satisfies the monoid laws, we can combine them, using the monoid function \verb|mappend| and we are able to add plugins without concerning about the order of evaluation. In addition, they are easier to use because they will behave as expected.
@@ -55,14 +55,14 @@ instance (Applicative f, Monoid a) => Monoid (f a) where
   mempty = pure mempty
   mappend = liftA2 mappend
 \end{lstlisting}
-The generalization has the advantage, that we have to prove the type class law only once for all types that match the general type declaration. The process of verifying a program is cumbersome and time consuming. Hence, the generalization of proofs is desirable.
+The generalization has the advantage of not having that to prove the type class law only once for all types that match the general type declaration. The process of verifying a program is cumbersome and time consuming. Hence, the generalization of proofs is desirable.
 
 We will verify that the definition \ref{lst:monoidinstance2} satisfies the left identity law of the \verb|Monoid| type class in two steps. First, we describe, why the instance implementation of listing \ref{lst:monoidinstance2} makes the type \verb|Char -> IO ()| part of the \verb|Monoid| type class. Then we prove that the left identity law from section \ref{sec:monoid} holds for the \verb|Monoid| instance implementation of listing \ref{lst:monoidinstance2}. We will assume that the instance implementation of listing \ref{lst:monoidinstance2} is a \verb|Monoid| in the first step.
 
 \subsection{Generalization of the plugin type }
 \label{sec:generalization}
 
-In order to use the instance implementation of listing \ref{lst:monoidinstance2} the type \verb|(->) Char| (that's the type of a Haskell function) has to be part of the type class \verb|Applicative| and the type \verb|IO ()| has to be part of the type class \verb|Monoid|. \verb|IO ()| is a \verb|Monoid| if the type \verb|IO| is an \verb|Applicative| and \verb|()| is a \verb|Monoid|.
+In order to use the instance implementation of listing \ref{lst:monoidinstance2}, the type \verb|(->) Char| (that is the type of a Haskell function) has to be part of the type class \verb|Applicative| and the type \verb|IO ()| has to be part of the type class \verb|Monoid|. \verb|IO ()| is a \verb|Monoid| if the type \verb|IO| is an \verb|Applicative| and \verb|()| is a \verb|Monoid|.
 
 Here is an overview of all the steps of the argumentation:
 \begin{enumerate}

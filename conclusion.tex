@@ -1,12 +1,12 @@
 
 \section{Conclusion}
 
-This article illustrated the verification method equational reasoning by example. We proved that the monoid law, left identity, holds for a given function definition. 
+This article illustrated the verification method equational reasoning by example. We proved that the monoid law known as left identity holds for a given function definition. 
 
 The type class laws provide a specification for the verification process. In addition, we can rely on properties of existing type class instances to prove further properties.
 
-Type classes allow us to generalize definitions. A prove for the generalization is valid for all specializations. Hence, the proof is reusable.
+Type classes allow us to generalize definitions. A proof for the generalization is valid for all specializations. Hence, the proof is reusable.
 
-The examination of the topic improved my comprehension for the advantages of a purely functional language. The reason why verification in a purely functional language like Haskell is easier, is because functions are just equalities. We can reason about Haskell code in the same way we reason about mathematical equations. The definitions are stateless. This fact doesn't apply to mainstream languages. A function definition of an imperative language is allowed to change the context. These definitions are stateful.
+The examination of the topic improved my comprehension for the advantages of a purely functional language. The reason why verification in a purely functional language like Haskell is easier then in imperative language is because functions are just equalities. We can reason about Haskell code in the same way we reason about mathematical equations. The definitions are stateless. This fact does not apply to mainstream languages. A function definition of an imperative language is allowed to change the context. These definitions are stateful.
 
-Personally, I found the process of proving the left identity law for the given definition tedious and demanding. The proof requires creativity and a strong mathematical background. The verification process would be too cumbersome and expensive to apply it to every piece of software. Although equational reasoning  is not suitable for software with a short life cycle, I think it's important to know the difference between testing and verification by proof.
+Personally, I found the process of proving the left identity law for the given definition tedious and difficult. The proof requires creativity and a strong mathematical background. The verification process would be too cumbersome and expensive to apply it to every piece of software. Although equational reasoning  is not suitable for software with a short life cycle, I think it is important to know the difference between testing and verification by proof.

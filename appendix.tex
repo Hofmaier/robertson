@@ -1,4 +1,3 @@
-
 \section{Appendix}
 \label{sec:appendix}
 
@@ -7,7 +6,8 @@
 
 Functor is a type class for types, which can be mapped over. Another way to describe functors is that they represent some sort of computational context \cite{yorgey}. Listing \ref{lst:functortypeclass} shows the declaration of the \verb|Functor| type class.
 \begin{lstlisting}[caption={Declaration of {\ttfamily Functor} type class},label={lst:functortypeclass}]
-length ((x:xs) ++ ys) = length (x:xs) + (length ys)
+class Functor f where
+  fmap :: (a -> b) -> f a -> f b
 \end{lstlisting}
 
 The \verb|f| in the declaration is a type class constructor. Only type constructors can implement \verb|Functor| (e.g. \verb|Maybe|, \verb|[]|).
@@ -22,14 +22,14 @@ Examples of \verb|Functor| instances are:
 \item[Either] \verb|Either e a| is a container. \verb|fmap| applies a function to \verb|a|.
 \end{description}
 
-To make a type an instance of \verb|Functor|, it has to define \verb|fmap|. In addition, the instances are expected to exhibit certain properties. The declaration of the type class doesn't reveal these properties. They are described in the type class documentation \cite{data.functor} \cite{Marlow_2010}. These properties are called the functor laws. All Functor instances in the standard library obey these laws \cite{yorgey} \cite{Lipovaca}.
+To make a type an instance of \verb|Functor|, it has to define \verb|fmap|. In addition, the instances are expected to obey certain properties. The declaration of the type class doesn't reveal these properties. They are described in the type class documentation \cite{data.functor} \cite{Marlow_2010}. These properties are called the functor laws. All Functor instances in the standard library obey these laws \cite{yorgey} \cite{Lipovaca}.
 
 A \verb|Functor| instance has to satisfy the following laws.
 
 \begin{description}
 \item[Law 1] Mapping the identity function over a \verb|Functor| value, will not change the functor value. Formally
 \begin{verbatim}
-fmap id  ==  id
+fmap id = id
 \end{verbatim}
 \item[Law 2] It doesn't matter if we compose two functions and then map them over a functor or if we first map one function over the functor and then map the other function. Formally
 \begin{verbatim}

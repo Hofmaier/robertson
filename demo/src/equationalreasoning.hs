@@ -2,6 +2,8 @@ input = [1,2,3]
 test_reverse :: Bool
 test_reverse = reverse (reverse input) == input
 
+length1 [x] = 1
+
 x = 1
 p1 = length [x] == 1
 

@@ -24,6 +24,12 @@ logto c  = do
 composedPlugin :: Char -> IO ()
 composedPlugin  = logto `mappend` print2stdout
 
+composed1 = logto `mappend` (print2stdout `mappend` donothing)
+composed2 = (logto `mappend` print2stdout) `mappend` donothing
+
+composed3 = logto `mappend` print2stdout 
+composed4 = print2stdout `mappend` logto 
+
 donothing :: Char -> IO ()
 donothing = \c -> return ()
 

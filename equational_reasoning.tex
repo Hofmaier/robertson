@@ -1,7 +1,7 @@
 \section{Equational Reasoning}
 \label{sec:equationalreasoning}
 
-Verification is the process of checking if software does what it's specification demands. To verify a program, a specification is required. In the case of functions that implement an instance of the type classes of section \ref{sec:typeclasses}, the specification is defined in form of the type class laws.
+Verification is the process of checking if software does what its specification demands. To verify a program, a specification is required. In the case of functions that implement an instance of the type classes of section \ref{sec:typeclasses}, the specification is defined in form of the type class laws.
 This section will compare different verification techniques and describe the method equational reasoning by example using type class laws as specification. In section \ref{sec:example} equational reasoning will be applied to proof the property of listing \ref{lst:monoidinstance1} in section \ref{sec:typeclasses}.
 
 There are several ways to check the behavior of a program. 
@@ -11,7 +11,7 @@ We will describe the difference with a simple example. Given the following prope
   \label{eq:reverse_prop}
 \text{reverse} (\text{reverse } (xs)) = xs  
 \end{equation}
-Equation \ref{eq:reverse_prop} expresses, if we apply \verb|reverse| twice on the same list \verb|xs| we get back the original list \verb|xs|. \verb|reverse| is the inverse of \verb|reverse| (other functions, like \verb|id|, have this property too). Verification techniques allow us to check if equation \ref{eq:reverse_prop} holds. We describe three techniques. The first two, testing and property-based testing, are very common and the third is the topic of this article.
+Equation \ref{eq:reverse_prop} shows that if we apply \verb|reverse| twice on the same list \verb|xs| we get back the original list \verb|xs|. \verb|reverse| is the inverse of \verb|reverse| (other functions, like \verb|id|, have this property too). Verification techniques allow us to check if equation \ref{eq:reverse_prop} holds. We describe three techniques. The first two, testing and property-based testing, are very common and the third one is the topic of this article.
 
 \begin{description}
 \item[Testing] Run the program with a selected input and check if it behaves as expected. In order to check the behavior, a function evaluates both sides of equation \ref{eq:reverse_prop} and compares the values. The following listing shows an example test.
@@ -28,7 +28,7 @@ An advantage of this method is, that the programmer doesn't have to define gener
 \item[Proof] A Proof can show that a property holds in all circumstances. To prove a property we use the technique equational reasoning. This technique requires knowledge of the function definition.
 \end{description}
 
-Figure \ref{fig:property_validation} compares the input coverage of the described methods. Testing checks if the program behaves correctly with one chosen point of the input space. Property-based testing checks the behavior at hundreds of randomly-generated points. Proof covers all possible cases of the possible input. It is the most reliable verification.
+Figure \ref{fig:property_validation} compares the input coverage of the described methods. Testing checks if the program behaves correctly with one chosen point of the input space. Property-based testing checks the behavior at hundreds of randomly-generated points. Proving a property covers all possible cases of the possible input. It is the most reliable verification.
 
 \begin{figure}
   \centering
@@ -65,9 +65,9 @@ All we did, was substituting expression according the algebraic properties
 \subsection{Reasoning about Haskell programs}
 
 A function definition in Haskell means that we can substitute the left-hand side with the right-hand side and vice versa. This is possible because Haskell is a purely functional language. Hence, we can use the same approach to prove that a property of a program written in Haskell holds, as we used to reason about mathematical expressions. 
-For example, it's possible to show that the length of a list with one element is actually 1. This general property can be formed as boolean expression in Haskell.
+For example, it's possible to show that the length of a list with one element is actually 1. This general property can be formed as an Haskell expression. 
 \begin{verbatim}
-length [x] == 1
+length [x] = 1
 \end{verbatim}
 The property holds no matter what \verb|x| is. To show that, we use the \gls{function-definition} of \verb|length| as a general description of the behavior. Listing \ref{lst:lengthdefinition} shows the definition of \verb|length| \cite{hutton}.
 \begin{lstlisting}[caption={Function definition of {\ttfamily length}},label={lst:lengthdefinition}]
@@ -80,10 +80,10 @@ In order to conclude that \verb|length [x] == 1| is always true, we substitute \
 length [x]         -- [x] is the same as x:[]
 = length (x:[])    -- apply definition
 = 1 + length []    -- apply definition
-= 1 + 0            --  1 + 0 = 0
+= 1 + 0            --  1 + 0 = 1
 1
 \end{lstlisting}
-Function definitions are general description and we can use them to deduce other general properties by substituting equal expressions.
+Function definitions are general descriptions and we can use them to deduce other general properties by substituting equal expressions.
 
 \subsection{Proof by structural induction}
 \label{sec:induction}
@@ -91,7 +91,7 @@ Function definitions are general description and we can use them to deduce other
 If we apply simple substitution to a recursive function, we run into problems.
 Consider the \gls{function-definition} of \verb|length| in listing \ref{lst:lengthdefinition}.
 If we substitute \verb|length x| with the definition \verb|1 + length xs|, we end up substituting \verb|length x| forever. A way to verify recursive programs is to use proof by structural induction.  
-Structural induction for proofing a property can be used for list or algebraic data types with a recursive constructor (e.g. Tree) \cite{Thompson}.
+Proof by structural induction can be used for list or algebraic data types with a recursive constructor (e.g. Tree) \cite{Thompson}.
 
  The principle of induction states, that it is sufficient to prove a property $p$ for the base case and that $p$ is preserved by the inductive case \cite{Doets}. In order to prove $p$, two steps are required:
  \begin{description}
@@ -119,14 +119,14 @@ Listings \ref{lst:lengthdefinition} and \ref{lst:concatdefintion} show he functi
 
 \begin{description}
 \item[Base case]
-We have to show that property \ref{eq:lengthprop} holds for the base case. The base case, in this example, are the arguments \verb|[]| and an arbitrary list for \verb|ys|. It isn't necessary to replace \verb|ys| because the definition of \verb|++| uses recursion over \verb|xs|. \verb|ys| will always be the same list.
+We have to show that property \ref{eq:lengthprop} holds for the base case. The base case, in this example, are the arguments \verb|[]| and an arbitrary list for \verb|ys|. It is not necessary to replace \verb|ys| because the definition of \verb|++| uses recursion over \verb|xs|. \verb|ys| will always be the same list.
 In order to check if property \ref{eq:lengthprop} holds for the base case, we replace \verb|xs| with  \verb|[]|, leading to the following Haskell expression.
 
 \begin{verbatim}
 length ([] ++ ys) == length [] + length ys
 \end{verbatim}
 
-We will evaluate the expression stepwise on the left-hand side and the right and side separately.
+We will evaluate the expression stepwise on the left-hand side and the right-hand side separately.
 The left-hand side evaluates to
 
 \begin{verbatim}
