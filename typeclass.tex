@@ -39,7 +39,7 @@ Functions declared by the type class are defined over all members of the type cl
 \subsection{Monoid}
 \label{sec:monoid}
 
-In mathematics, a \gls{monoid} is an algebraic structure with single associative binary operation and an identity element. Monoids are semigroups with identity \cite{wiki:monoid}. Several elements of a monoid can always be reduced to a single element by applying the corresponding binary operator. It doesn't matter in which order we apply the operator, the result is always the same. This is called \emph{\gls{associativity}}. The set of elements has an identity element. For example, the set of natural numbers $\mathbb{N}$ form a monoid under multiplication.  The number 1 is the identity element. Multiplication of the identity and any other number $x$ results always in $x$.
+In mathematics, a \gls{monoid} is an algebraic structure with single associative binary operation and an identity element. Monoids are semigroups with identity \cite{wiki:monoid} \cite{renshaw}. Several elements of a monoid can always be reduced to a single element by applying the corresponding binary operator. It doesn't matter in which order we apply the operator, the result is always the same. This is called \emph{\gls{associativity}}. The set of elements has an identity element. For example, the set of natural numbers $\mathbb{N}$ form a monoid under multiplication.  The number 1 is the identity element. Multiplication of the identity and any other number $x$ results always in $x$.
 
 In Haskell there is a type class for monoids. Types that form a monoid can become part of the \verb|Monoid| type class. For example, the type list \verb|[]| forms a monoid. Two values of type list can always concatenated to another list with the \verb|++| operator. The empty list \verb|[]| is the identity element. 
 
@@ -47,7 +47,7 @@ The example in section \ref{sec:example} shows a plugin system, that contains a 
 
 \subsubsection{Functions of the type class monoid}
 
-Members of the type class \verb|Monoid| have to implement the functions \verb|mempty| and \verb|mappend| amongst others (see appendix for a complete declaration).
+Members of the type class \verb|Monoid| have to implement the functions \verb|mempty| and \verb|mappend| amongst others (see appendix \ref{sec:monoiddefinition} for a complete declaration).
 These functions have the following type signature declaration.
 \begin{verbatim}
     mempty :: m
@@ -62,11 +62,11 @@ When making monoid instances, we need to make sure that \verb|mempty| acts like 
   \label{eq:firstmonoidlaw}
   \text{mappend}(\text{mempty}, x) = x
 \end{equation}
-Equation \ref{eq:fistmonoidlaw} states that \verb|mempty| has to behave like the identity with respect to \verb|mappend|. When \verb|mappend| is applied with the identity and an other element \verb|x| of the monoid, we get back \verb|x|.
+Equation \ref{eq:firstmonoidlaw} states that \verb|mempty| has to behave like the identity with respect to \verb|mappend|. When \verb|mappend| is applied with the identity and an other element \verb|x| of the monoid, we get back \verb|x|.
 
 \subsubsection{Example monoid implementation}
 
-There is a useful property of the \verb|Applicative| type class with respect to the \verb|Monoid| type class (the \verb|Applicative| type class is described in more detail in the appendix, section \ref{sec:applicatives}). The example in section \ref{sec:example} will use this property. If \verb|f| is an \verb|Applicative| and \verb|b| is a \verb|Monoid| then \verb|f b| is also a \verb|Monoid|. If a type is part of the \verb|Applicative| type class we can create a \verb|Monoid| instance with the implementation in listing \ref{lst:monoidinstance1}. Figure \ref{fig:applicative_monoid} illustrates the property.
+There is a useful property of the \verb|Applicative| type class with respect to the \verb|Monoid| type class (the \verb|Applicative| type class is described in more detail in the appendix, section \ref{sec:applicatives}). The example in section \ref{sec:example} will use this property. If \verb|f| is an \verb|Applicative| and \verb|b| is a \verb|Monoid| then \verb|f b| is also a \verb|Monoid|. If a type is part of the \verb|Applicative| type class and the type contains a \verb|Monoid| we can create a \verb|Monoid| instance with the implementation in listing \ref{lst:monoidinstance1}. Figure \ref{fig:applicative_monoid} illustrates this property.
 
 \begin{figure}
   \centering
@@ -79,15 +79,22 @@ There is a useful property of the \verb|Applicative| type class with respect to 
 basicstyle=\ttfamily,
 columns=fullflexible,
 keepspaces=true,
+captionpos=b
 }
-\begin{lstlisting}[caption={Monoid instance implementation of applicatives},label={lst:monoidinstance1}]
-instance (Applicative f, Monoid b) => Monoid (f b) where
+\begin{lstlisting}[caption={{\ttfamily Monoid} instance implementation of {\ttfamily IO}},label={lst:monoidinstance1}]
+
+
+{-# LANGUAGE FlexibleInstances #-} 
+import Data.Monoid
+import Control.Applicative 
+
+instance (Applicative f, Monoid a) => Monoid (f a) where
     mempty = pure mempty
     mappend = liftA2 mappend
 \end{lstlisting}
 
-\verb|mempty| is of type \verb|f b| . Hence \verb|pure mempty| has to be of type \verb|f b|.
-As \verb|f| is an \verb|Applicative|, it implements \verb|pure|. The type of \verb|pure| is \verb|a -> f a| (see \ref{sec:applicatives}). We call \verb|pure| with \verb|mempty|. When instantiated, the type of \verb|pure| becomes \verb|b -> f b|. We know that \verb|b| is part of \verb|Monoid| because of the type constraints. The compiler will use \verb|mempty| of \verb|b|.  \verb|liftA2| is an utility function of \verb|Applicative|. It encapsulates the \verb|mappend| function in an applicative functor. 
+\verb|mempty| is of type \verb|f a| . Hence \verb|pure mempty| has to be of type \verb|f a|.
+As \verb|f| is an \verb|Applicative|, it implements \verb|pure|. The type of \verb|pure| is \verb|a -> f a| (see appendix \ref{sec:applicatives}). We call \verb|pure| with \verb|mempty| of type \verb|a|. We know that \verb|a| is part of \verb|Monoid| because of the type constraints. The compiler will use \verb|mempty| of \verb|a|. \verb|liftA2| is an utility function of \verb|Applicative|. It encapsulates the \verb|mappend| function in an applicative functor. 
 
 In section \ref{sec:example} we prove that the \gls{function-definition} of listing \ref{lst:monoidinstance1} obeys the first monoid law formed by equation \ref{eq:firstmonoidlaw} with  the verification technique equational reasoning.
 

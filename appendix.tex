@@ -5,15 +5,12 @@
 \subsection{Functor}
 \label{sec:functor}
 
-Functor is a type class for types, which can be mapped over. Another way to describe functors is that they represent some sort of computational context \cite{yorgey}. The general concept of a functor is more abstract and harder to grasp than the concepts of type classes described in section \ref{sec:typeclass}.
-The most accurate way to describe the type class \verb|Functor| is to give it's declaration \cite{data.functor}:
+Functor is a type class for types, which can be mapped over. Another way to describe functors is that they represent some sort of computational context \cite{yorgey}. Listing \ref{lst:functortypeclass} shows the declaration of the \verb|Functor| type class.
+\begin{lstlisting}[caption={Declaration of {\ttfamily Functor} type class},label={lst:functortypeclass}]
+length ((x:xs) ++ ys) = length (x:xs) + (length ys)
+\end{lstlisting}
 
-\begin{verbatim}
-class Functor f where
-    fmap :: (a -> b) -> f a -> f b
-\end{verbatim}
-
-The \verb|f| in the declaration is a type class constructor. Only type constructor can implement \verb|Functor| (e.g. \verb|Maybe|, \verb|[]|).
+The \verb|f| in the declaration is a type class constructor. Only type constructors can implement \verb|Functor| (e.g. \verb|Maybe|, \verb|[]|).
 
 \verb|fmap| takes any function \verb|a -> b| and a value of type \verb|f a| (\verb|f| is the container or context, \verb|a| is the type wrapped inside the functor) and returns a value of type \verb|f b|. 
 If \verb|f a| is of type \verb|Maybe| \verb|Int| and the function of type \verb|Int -> String|, \verb|fmap| returns \verb|Maybe String|. 
@@ -25,8 +22,7 @@ Examples of \verb|Functor| instances are:
 \item[Either] \verb|Either e a| is a container. \verb|fmap| applies a function to \verb|a|.
 \end{description}
 
-To make a type an instance of \verb|Functor|, it has to define \verb|fmap|. In addition, the instances are expected to exhibit certain properties. The declaration of the type class doesn't reveal these properties. They are described in the type class documentation \cite{data.functor} \cite{Marlow_2010}. These properties are called the functor laws.
-The Haskell Compiler doesn't detect violations of the expected laws. All Functor instances in the standard library obey these laws \cite{yorgey} \cite{Lipovaca}.
+To make a type an instance of \verb|Functor|, it has to define \verb|fmap|. In addition, the instances are expected to exhibit certain properties. The declaration of the type class doesn't reveal these properties. They are described in the type class documentation \cite{data.functor} \cite{Marlow_2010}. These properties are called the functor laws. All Functor instances in the standard library obey these laws \cite{yorgey} \cite{Lipovaca}.
 
 A \verb|Functor| instance has to satisfy the following laws.
 
@@ -45,41 +41,25 @@ This is the same as \verb|fmap (g . h) = fmap g (fmap h)|
 If we can prove that a type satisfies these laws, we can make assumptions about how the the type will act. We know that \verb|fmap| will not change the structure or the context of the functor.
 And we know that \verb|fmap| only maps the function over the functor and nothing else. 
 
-If we know that a type satisfies the laws, we are able to deduce further properties for our own types. In section we \ref{sec:example} give an example of this process.
-
 \subsection{Applicative Functor}
 \label{sec:applicatives}
 
 Applicative functors are abstract characterizations of an applicative style of effectful programming \cite{mcbride} \cite{control.applicative}
 
-The \verb|Applicative| type class encapsulates the following idea. What if you have a function wrapped in a \verb|Functor| (e.g. \verb|Maybe (Int -> Int -> Int)|) and you want to apply the function to another functor (e.g. \verb|Maybe Int|). For example, we want to map \verb|Just (3 *)|, a function encapsulated inside a functor, over \verb|Just 23|, another functor with an encapsulated \verb|Int|. \verb|fmap| doesn't work here, because it expects a function of type \verb|a -> b| as first parameter. That's where the \verb|Applicative| type class comes in. 
-The \verb|Applicative| type class is defined as follows \cite{control.applicative}.
-\begin{verbatim}
+The \verb|Applicative| type class encapsulates the following idea. What if we have a function wrapped in a \verb|Functor| (e.g. \verb|Maybe (Int -> Int -> Int)|) and you want to apply the function to another functor (e.g. \verb|Maybe Int|). For example, we want to map \verb|Just (3 *)|, a function encapsulated inside a functor, over \verb|Just 23|, another functor with an encapsulated \verb|Int|. \verb|fmap| doesn't work here, because it expects a function of type \verb|a -> b| as first parameter. That's where the \verb|Applicative| type class comes in. 
+The \verb|Applicative| type class is defined in listing \ref{lst:applicativetypeclass} \cite{control.applicative}.
+\begin{lstlisting}[caption={Declaration of {\ttfamily Applicative} type class},label={lst:applicativetypeclass}]
 class (Functor f) => Applicative f where
     pure :: a -> f a
     (<*>) :: f (a -> b) -> f a -> f b
-\end{verbatim}
+\end{lstlisting}
 
-The type class declaration demands the type \verb|f| to be a functor. Every type that is part of \verb|Applicative| is part of \verb|Functor|. Hence we can use \verb|fmap| with \verb|Applicative| instances.
-Applicatives are enhanced functors. In addition to \verb|fmap| we can use the \verb|<*>| operator to chain several \verb|Applicative| values together.
+Every type that is part of \verb|Applicative| is part of \verb|Functor|. Hence we can use \verb|fmap| with \verb|Applicative| instances.
+\verb|Applicatives| are enhanced functors. In addition to \verb|fmap| we can use the \verb|<*>|-operator to chain several \verb|Applicative| values together.
 
-The \verb|pure| function puts a value of type \verb|a| in a default context. If applied with a function \verb|a -> b|,  \verb|pure| returns a functor with a function inside, \verb|f (a -> b)|, hence the first argument to \verb|<*>|.
+The \verb|pure| function puts a value of type \verb|a| in a default context. If applied with a function \verb|a -> b|,  \verb|pure| returns a functor with a function inside, \verb|f (a -> b)|, hence the first argument of \verb|<*>|.
 
-It's possible to chain applicatives together as follows:
-\begin{verbatim}
-ghci> pure (*) <*> Just 3 <*> Just 23
-Just 69
-\end{verbatim}
-
-The following types are instances of the type class \verb|Applicative|:
-
-\begin{itemize}
-\item Maybe
-\item Lists
-\item IO
-\end{itemize}
-
-There are several laws that \verb|Applicative| instances should satisfy \cite{mcbride} \cite{control.applicative}. This article will use only the following :
+There are several laws that instances of the \verb|Applicative| type class should satisfy \cite{mcbride} \cite{control.applicative}. We only need to know the following:
 
 \begin{enumerate}
 \item \verb|pure id <*> v = v|
@@ -87,9 +67,9 @@ There are several laws that \verb|Applicative| instances should satisfy \cite{mc
 \item \verb|pure f <*> pure x = pure (f x)|
 \end{enumerate}
 
-The second law states that applying \verb|fmap| over a  function \verb|g| over a functor \verb|x| is the same as putting \verb|g| in a default context and mapping the resulting function over \verb|x|.
+The second law states that applying \verb|fmap| over a function \verb|g| over a functor \verb|x| is the same as putting \verb|g| in a default context and mapping the resulting function over \verb|x|.
 
-The third law states that it doesn't matter if we put the values \verb|f| and \verb|x| in a default context first and then apply \verb|<*>| or if we call \verb|f| on \verb|x| first and then put them in a default context. We will use this property to prove another property in section \ref{sec:exampleproof}
+The third law states that it does not matter if we put the values \verb|f| and \verb|x| in a default context first and then apply \verb|<*>| or if we call \verb|f| on \verb|x| first and then put them in a default context. 
 
 \subsection{Monoid}
 \label{sec:monoiddefinition}

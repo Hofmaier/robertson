@@ -363,3 +363,6 @@ logTo = do
     handle <- openFile "log.txt" WriteMode
     return (hPutChar handle)
 \end{verbatim}
+
+
+The Haskell type \verb|IO|, used for I/O actions, is part of the \verb|Applicative| type class. Listing \ref{lst:monoidinstance1} shows the implementation of a \verb|Monoid| instance for the the type \verb|IO m| where the type variable \verb|m| is a \verb|Monoid|. 

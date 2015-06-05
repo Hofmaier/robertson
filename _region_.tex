@@ -1,7 +1,9 @@
+\message{ !name(example.tex)}
+\message{ !name(example.tex) !offset(-2) }
 \section{Example proof for Monoid Laws}
 \label{sec:example}
 In this section we use equational reasoning (see section \ref{sec:equationalreasoning}) to prove the left identity law of the monoid type class (see section \ref{sec:monoid}) for a new type.
-The following example is based on a blog post of Gabriel Gonzales \cite{gonzales14}. We simplified the types of a plugin and extended the example with an additional plugin implementation.
+The following example is based on a blog post of Gabriel Gonzales \cite{gonzales14}. We simplified the types of a plugin and extended the example with an addidional plugin implementation.
 
 Suppose we want to build a plugin system. A plugin in our example is an \verb|IO| action that takes a \verb|Char| value and does some work with it (e.g. log to a file, potentially with side effects). Hence, a plugin is of type \verb|Char -> IO ()|. Listing \ref{lst:logtoplugin} shows the definition of the plugin \verb|logto|. It writes the first argument of type \verb|Char| to a file named \verb|log.txt|.
 
@@ -31,11 +33,12 @@ In order to extend the program from listing \ref{lst:applyingaSinglePlugin}, we 
 Listing \ref{lst:composition} gives an example of the composition of the plugins \verb|logto| and \verb|printstdout|. We apply the \verb|mappend| function from the \verb|Monoid| type class to \verb|logto| and \verb|print2stdout|. Both arguments are of type \verb|Char -> IO ()|. The return value is also of type \verb|Char -> IO ()|. Listing \ref{lst:composition} only works if \verb|mappend| is implemented for the type \verb|Char -> IO ()|. We will give an implementation later in this section.
 
 \begin{lstlisting}[caption={Composition of two plugins}, label={lst:composition}]
+
 composedPlugin :: Char -> IO ()
-composedPlugin  = logto `mappend` print2stdout
+composedPlugin = mappend logto print2stdout
 \end{lstlisting}
 
-In addition, we demand that the order in which we evaluate the plugins must not matter. The plugins have to work independently of each other. For example, the behavior of the plugins \verb|composed1| and \verb|composed2| from listing \ref{lst:order} is the same.
+In addition, the order in which we add the plugins must not matter. For example, the behavior of the plugins \verb|composed1| and \verb|composed2| from listing \ref{lst:order} should be the same.
 
 \begin{lstlisting}[caption={The order of the plugins must not matter.}, label={lst:order}]
 composed1 = mappend logto print2stdout
@@ -47,72 +50,77 @@ The monoid laws state that \verb|mappend| must be associative. Hence, if we can 
 The plugins are of type \verb|Char -> IO ()|. Instead of writing a specialized instance for \verb|Char -> IO ()|, we use the general implementation of section \ref{sec:monoid}.
 The instance implementation is repeated for convenience:
 
-\begin{lstlisting}[caption={Monoid instance},label={lst:monoidinstance2}]
+\begin{lstlisting}[caption={Monoid instance},label={lst:monoidinstance}]
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverlappingInstances #-}
-
-instance (Applicative f, Monoid a) => Monoid (f a) where
+instance Monoid b => Monoid (IO b) where
   mempty = pure mempty
   mappend = liftA2 mappend
 \end{lstlisting}
 The generalization has the advantage, that we have to prove the type class law only once for all types that match the general type declaration. The process of verifying a program is cumbersome and time consuming. Hence, the generalization of proofs is desirable.
 
-We will verify that the definition \ref{lst:monoidinstance2} satisfies the left identity law of the \verb|Monoid| type class in two steps. First, we describe, why the instance implementation of listing \ref{lst:monoidinstance2} makes the type \verb|Char -> IO ()| part of the \verb|Monoid| type class. Then we prove that the left identity law from section \ref{sec:monoid} holds for the \verb|Monoid| instance implementation of listing \ref{lst:monoidinstance2}. We will assume that the instance implementation of listing \ref{lst:monoidinstance2} is a \verb|Monoid| in the first step.
+We will verify that the definition \ref{lst:monoidinstance} satisfies the left identity law of the monoid type class in two steps. First, we describe, why the instance implementation of listing makes the type \verb|IO ( Char -> IO ())| part of the \verb|Monoid| type class. Then we prove that the monoid laws from section \ref{sec:monoid} hold for the definition in listing \ref{lst:monoidinstance}. We will assume that the instance implementation of listing \ref{lst:monoidinstance} is a monoid in the first step.
 
 \subsection{Generalization of the plugin type }
 \label{sec:generalization}
 
-In order to use the instance implementation of listing \ref{lst:monoidinstance2} the type \verb|(->) Char| (that's the type of a Haskell function) has to be part of the type class \verb|Applicative| and the type \verb|IO ()| has to be part of the type class \verb|Monoid|. \verb|IO ()| is a \verb|Monoid| if the type \verb|IO| is an \verb|Applicative| and \verb|()| is a \verb|Monoid|.
+In order to use the instance implementation of listing \ref{lst:monoidinstance} the type \verb|Char -> IO ()| has to be part of the type class \verb|Monoid|. 
+Hence, we have to check if \verb|Char -> IO ()| is a monoid. We use the instance definition of listing \ref{lst:monoidinstance} again and say: \verb|Char -> IO ()| is a monoid if the type \verb|(->) Char| (that's the type of a Haskell function) is part of the \verb|Applicative| type class and the type \verb|IO ()| is a monoid. We repeat the same argument for \verb|IO ()|.
 
 Here is an overview of all the steps of the argumentation:
 \begin{enumerate}
+\item Show that  \verb|IO ( Char -> IO ())| is of type 
+\begin{verbatim}
+(Applicative f, Monoid b) => Monoid (f b)
+\end{verbatim}
 \item Show that \verb|Char -> IO ()| is a \verb|Monoid|.
-\item Show that \verb|(->) Char| is an \verb|Applicative| and \verb|IO ()| is a \verb|Monoid|.
-\item Show that \verb|IO| is an \verb|Applicative| and \verb|()| is a \verb|Monoid|.
+\item Show that \verb|IO ()| is a \verb|Monoid|.
+\item Show that \verb|()| is a \verb|Monoid|.
 \end{enumerate}
 
 We show the required properties in reversed order.
 
 \begin{etaremune}
-\item The standard library provides a \verb|Monoid| instance for \verb|()| \cite{monoid} and an \verb|Applicative| instance for \verb|IO| \cite{control.applicative}. All type class instances of the standard library obey the corresponding type class laws \cite{Lipovaca}. 
+\item The standard library provides a \verb|Monoid| instance for \verb|()| \cite{monoid}. All \verb|Monoid| instances in the standard library obey the monoid laws \cite{Lipovaca}. Therefore, \verb|()| must form a \verb|Monoid|.
 
-\item If the implementation from listing \ref{lst:monoidinstance2} satisfies the monoid laws then \verb|IO ()| is a \verb|Monoid| because \verb|IO| is part of the \verb|Applicative| type class \cite{control.applicative} and \verb|()| is a \verb|Monoid|. The type \verb|(->) r| (that's the type of Haskell functions) is a part of the \verb|Applicative| type class \cite{control.applicative}.
+\item If the implementation from listing \ref{lst:monoidinstance} satisfies the monoid laws then \verb|IO ()| is a monoid because \verb|IO| is part of the \verb|Applicative| type class \cite{control.applicative} and \verb|()| is a \verb|Monoid|.
 
-\item 
-If the implementation from listing \ref{lst:monoidinstance2} satisfies the monoid laws then \verb|Char -> IO ()| is a \verb|Monoid| because \verb|(->) Char| is an \verb|Applicative| and \verb|IO ()| is a \verb|Monoid|. The compiler will use the instance implementation for the \verb|Monoid| type class from listing \ref{lst:monoidinstance2} for the type \verb|Char -> IO ()| because it matches the type
+\item The type \verb|(->) r| (that's the type of Haskell functions) is a part of the \verb|Applicative| type class \cite{control.applicative}.
+If the implementation from listing \ref{lst:monoidinstance} satisfies the monoid laws then \verb|Char -> IO ()| is a \verb|Monoid| because \verb|(->) Char| is an \verb|Applicative| and \verb|IO ()| is a \verb|Monoid|.
+
+\item The compiler will use the instance implementation for \verb|Monoid| type class from listing \ref{lst:monoidinstance} for the type \verb|IO (Char -> IO ())| because it matches the type
 \begin{verbatim}
 (Applicative f, Monoid b) => Monoid (f b)
 \end{verbatim}
 
 \end{etaremune} 
 
-Notice that we rely heavily on the assumption that listing \ref{lst:monoidinstance2} satisfies the monoid laws. The next section will prove that the implementation is correct.
+Notice that we rely heavily on the assumption that listing \ref{lst:monoidinstance} satisfies the monoid laws. The next section will prove that the implementation is correct.
 
 \subsection{Proof}
 \label{sec:exampleproof}
 
-In this section we will show that the implementation in listing \ref{lst:monoidinstance2} satisfies the left identity law of the \verb|Monoid| type class (see section \ref{sec:monoid}).
+In this section we will show that the implementation in listing \ref{lst:monoidinstance} satisfies the left identity law of the \verb|Monoid| type class (see section \ref{sec:monoid}).
 The left identity law demands that:
 \begin{verbatim}
 mappend mempty x = x
 \end{verbatim}
 
-We use equational reasoning to show that the left-hand side is equal to \verb|x|. First we use the definitions of \verb|mappend| and \verb|mempty| of listing \ref{lst:monoidinstance2} to substitute the left-hand side. Furthermore we look up the definition of \verb|liftA2| in the source code \cite{control.applicative} to evaluate the expression. 
-Listing \ref{lst:lifta2} shows the definition of \verb|liftA2|.
-
-\begin{lstlisting}[caption={Function definition of {\ttfamily liftA2}},label={lst:lifta2}]
+We use equational reasoning (see section \ref{sec:equationalreasoning}) to show that the left-hand side is equal to \verb|x|. First we use the definitions of \verb|mappend| and \verb|mempty| of listing \ref{sec:equationalreasoning} to substitute the left-hand side. Furthermore we lookup the definition of \verb|liftA2| in the source code \cite{control.applicative} to evaluate the expression. 
+\verb|liftA2| is defined as follows
+\begin{verbatim}
 liftA2 f x y = (pure f <*> x) <*> y
-\end{lstlisting}
+\end{verbatim}
 
 \begin{verbatim}
-mappend mempty x                    -- apply def. mappend
-= liftA2 mappend mempty x           -- apply def. mempty
-= liftA2 mappend (pure mempty) x    -- apply def. of liftA2
+mappend mempty x                           -- def. mappend
+= liftA2 mappend mempty x                  -- def. mempty
+= liftA2 mappend (pure mempty) x           -- def. liftA2
 = (pure mappend <*> pure mempty) <*> x
 \end{verbatim}
 
-To resolve this expression further, we use the laws of the \verb|Applicative| type class described in the appendix \ref{sec:applicatives}.
-One law of the \verb|Applicative| type class states:
+To resolve this expression further, we use the laws described in section \ref{sec:applicatives}.
+One law of the \verb|Applicative| type class says:
 \begin{verbatim}
 pure f <*> pure x = pure (f x)
 \end{verbatim}
@@ -143,3 +151,5 @@ The example demonstrated several ideas:
 \item Type class laws (or properties) allow to prove further properties.
 \end{itemize}
 
+
+\message{ !name(example.tex) !offset(-155) }
