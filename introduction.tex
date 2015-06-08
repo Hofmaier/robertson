@@ -15,7 +15,7 @@ A property of a program can be specified in the form of an equation. For example
 \end{equation}
  The function \verb|id| is the identity function. The property represented by equation \ref{eq:firstfunctorlaw} says that applying the function \verb|fmap| with the arguments \verb|id| and an arbitrary container is the same as applying the function \verb|id| on a container. Simply put, mapping the identity function over every item in a container has no effect. Given a function definition of \verb|fmap|, we can check if this property holds, using equational reasoning.
 
-The goal of equational reasoning is to provide certainty that a program has particular properties. Proof of required properties contributes to the reliability and robustness of a software. 
+The goal of equational reasoning is to  provide certainty that a program has particular properties. Proof of required properties contributes to the reliability and robustness of a software. 
 For example, the first formally verified micro kernel, seL4, was verified using Haskell and formal verification to ensure proper security functionality and security assurance \cite{Klein09}.
 Another example is the streaming library "pipes". The author, Gabriel Gonzales, used equational reasoning to prove the correctness of the library \cite{gonzales13}.
 

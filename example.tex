@@ -131,7 +131,7 @@ pure id <*> v = v
 = pure (\a -> mappend mempty a) <*> x   -- 1. monoid law 
 = pure (\a -> a) <*> x                  -- a -> a = id
 = pure id <*> x                         -- 1. applicative law
-x
+= x
 \end{verbatim}
 
 That completes the proof.

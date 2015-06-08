@@ -366,3 +366,38 @@ logTo = do
 
 
 The Haskell type \verb|IO|, used for I/O actions, is part of the \verb|Applicative| type class. Listing \ref{lst:monoidinstance1} shows the implementation of a \verb|Monoid| instance for the the type \verb|IO m| where the type variable \verb|m| is a \verb|Monoid|. 
+\bibitem{gonzales}
+Gabriel Gonzales,
+Equational reasoning at scale, 
+\url{http://www.haskellforall.com/2014/07/equational-reasoning-at-scale.html},
+2014.
+
+\begin{verbatim}
+y = f x
+g = h y
+\end{verbatim}
+We can replace the definition of \verb|g| with
+\begin{verbatim}
+g = h (f x)
+\end{verbatim}
+and get the same result.
+
+We can replace the definition of \verb|g| with
+\begin{verbatim}
+g = h (f x)
+\end{verbatim}
+and get the same result.
+
+\begin{frame}
+ \frametitle{Why are functional programming languages great for equational reasoning?}
+Referential transparancy
+\end{frame}
+
+\begin{frame}[fragile]
+
+  \begin{description}
+  \item[Testing] Code is compiled and executed. Can expose error. Cannot proof absence of errors. 
+
+
+  \end{description}
+\end{frame}

@@ -123,7 +123,7 @@ We have to show that property \ref{eq:lengthprop} holds for the base case. The b
 In order to check if property \ref{eq:lengthprop} holds for the base case, we replace \verb|xs| with  \verb|[]|, leading to the following Haskell expression.
 
 \begin{verbatim}
-length ([] ++ ys) == length [] + length ys
+length ([] ++ ys) = length [] + length ys
 \end{verbatim}
 
 We will evaluate the expression stepwise on the left-hand side and the right-hand side separately.
@@ -159,7 +159,7 @@ length ((x:xs) ++ ys)        -- apply definition of ++
 If we evaluate the right-hand side of the equation in listing \ref{lst:inductionstep} we get:
 \begin{verbatim}
 length (x:xs) + length ys    -- apply definition of length
-1 + length xs + length ys
+= 1 + length xs + length ys
 \end{verbatim}
 
 The last listing shows, that the equality in listing \ref{lst:inductionstep} follows from the induction hypothesis in equation \ref{eq:lengthprop}. This completes the induction step and therefore the proof itself.
