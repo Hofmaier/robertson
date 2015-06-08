@@ -6,6 +6,8 @@
 \usepackage{attrib}
 \usepackage{color}
 \usepackage{url}
+\usepackage{todo}
+\usetikzlibrary{er}
 \title{Verifying Type Class Laws with Equational Reasoning}
 \subtitle{A description by example}
 \author{Lukas Hofmaier \texttt{lukas.hofmaier@hsr.ch}}
@@ -22,17 +24,126 @@
 
 \begin{frame}
   \frametitle{Why I'm interested in the topic?}
- Advantages purely functional programming language?
+\begin{itemize}
+\item Understanding the advantages of purely functional programming
   \begin{itemize}
   \item Higher order functions
   \item Functional programs are often shorter
-  \item {\color{red} Referential transparancy makes it possible to conduct equational reasoning}
+  \item {\color{red} Referential transparency makes it possible to conduct equational reasoning}
   \item It is fun
   \end{itemize}
+\item Understanding blog post of Gabriel Gonzales
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{What is referential transparency?}
+Computation yields the same value each time it is invoked
+\begin{verbatim}
+y = f x
+g = h y
+\end{verbatim}
+We can replace the definition of \verb|g| with
+\begin{verbatim}
+g = h (f x)
+\end{verbatim}
+and get the same result.
+
+Application:
+\begin{itemize}
+\item Efficiency
+\item Verifying correctness of a program - Equational reasoning
+\end{itemize}
+\end{frame}
+\section{Equational Reasoning}
+
+\subsection{Reasoning about algebraic properties}
+
+\begin{frame}
+  \frametitle{What is equational reasoning?}
+Equational reasoning is a method originally used in algebra.
+ It's the process of proving a given property by substituting equal expressions.
+\begin{equation}
+  \label{eq:sum}
+  (x+a)(x+b) = x^2 + (a+b)x+ab
+\end{equation}
+
+\begin{equation}
+  \label{eq:firstalgebra}
+  (x+a)(x+b) = x^2 + ax + xb + ab \text{     (use distributivity)}
+\end{equation}
+\begin{equation}
+x^2 + ax + xb + ab = x^2 + ax + bx + ab \text{     (use commutativity)}
+\end{equation}
+\begin{equation}
+x^2 + ax + bx + ab = x^2 + (a + b)x + ab \text{     (use distributivity)}
+\end{equation}
+Notiz: das kann ich vl. an Black / white board entwickeln
+\end{frame}
+
+\subsection{Reasoning about programs}
+
+\begin{frame}[fragile]
+  \frametitle{Reasoning about programs}
+  We can reason the same way about programs.
+
+For instance, we want to verify the following property.
+\begin{verbatim}
+length [x] = 1
+\end{verbatim}
+Given the function definition of \verb|length|.
+\begin{verbatim}
+length [] = 0
+length (x:xs) = 1 + length xs  
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Reasoning about programs}
+Begin from the left-hand side \verb|length [x]| and try to get to the right-hand side \verb|1| by substituting equals-for-equals.
+\begin{verbatim}
+length [x]         -- [x] is the same as x:[]
+= length (x:[])    -- apply definition
+= 1 + length []    -- apply definition
+= 1 + 0            --  1 + 0 = 1
+1
+\end{verbatim}
+\end{frame}
+
+\subsection{What properties will we discuss?}
+\begin{frame}
+\frametitle{Why use equational reasoning?}
+\begin{block}{Example Property}
+Correctens of a program can be specified in the form of an equation.
+\begin{equation}
+\text{fmap } \text{id}  =  \text{id}  
+\end{equation}
+We can use equational reasoning to verify if a property holds.  
+\end{block}
+\begin{block}{Goals of verification}
+\begin{itemize}
+\item Provide certainty that a program has particular properties
+\item Contributes to the reliability and robustness of a software
+\end{itemize}  
+\end{block}
+\begin{block}{Examples of use}
+Example of use
+\begin{itemize}
+\item the first formally verified micro kernel, seL4.
+\item streaming library "pipes"
+\end{itemize}  
+\end{block}
 \end{frame}
 
 \begin{frame}
-\frametitle{Referential transparency}
+  \frametitle{What properties will we discuss?}
+\begin{itemize}
+\item Type classes exhibit type class laws
+\item Laws ensures expected behavior (e.g. associativity)
+\item We can use laws to apply equational reasoning
+\item The Haskell compiler does not enforce type class laws.
+\end{itemize}
 
 \end{frame}
 
@@ -44,12 +155,33 @@
 \end{figure}
 \end{frame}
 
-\begin{frame}
- \frametitle{Why are functional programming languages great for equational reasoning?}
-Referential transparancy
-\end{frame}
 
 \section{Type Classes}
+
+\begin{frame}
+  \frametitle{Relation between value, type and type class}
+  \begin{block}{Type classes}
+    \begin{itemize}
+    \item concept to describe the behavior of a type.
+    \item similar to interfaces
+    \end{itemize}
+
+  \end{block}
+
+  \begin{block}{Relation between value, type and type class}
+
+\begin{tikzpicture}[node distance=10em]
+  \node[entity](type){type};
+  \node[entity](typeclass)[right of=type]{type class};
+  \node[entity](value)[left of=type]{value};
+  \draw (type) -- (typeclass) node [very near end, above=1pt] {*} node [very near start, above=1pt] {*};
+\draw (value) -- (type) node [very near end, above=1pt] {1} node [very near start, above=1pt] {*};
+  
+\end{tikzpicture}    
+  \end{block}
+
+
+\end{frame}
 
 \lstset{
 basicstyle=\ttfamily,
@@ -58,92 +190,144 @@ keepspaces=true,
 captionpos=b
 }
 
+
 \begin{frame}[fragile]
   \frametitle{Type classes support ad hoc polymorphism}
-
+  \begin{itemize}
+  \item An overloaded function uses different function definitions depending on the types of the arguments
+  \item constrains the type variable in the type signature declaration \verb|t|. \verb|t| has to be a member of \verb|Show|.
+  \end{itemize}
 \begin{lstlisting}
 showlist :: Show t => [t] -> String
 showlist [] = ""
 showlist (x:xs) = show x ++ showlist xs
 \end{lstlisting}
-
+\verb|Show| is a type class
 \end{frame}
 
+\subsection{Example Proof for Monoid  Laws}
 
 \begin{frame}[fragile]
   \frametitle{Monoid}
-A monoid is an algebraic structure with single associatve binary operation. they are semigroups with identity
+  \begin{itemize}
+\item A monoid is an algebraic structure with single associatve binary operation. they are semigroups with identity
+  \item For example list \verb|[]| is a monoid.
+  \end{itemize}
+
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{An Applicative can be a monoid}
-\begin{figure}
-  \centering
-     \includegraphics[width=0.7\textwidth]{monoid}
-\end{figure}
+\frametitle{Plugins form a monoid}
+  Suppose we want to build a plugin system
+
+Requirements:
+\begin{itemize}
+\item Composable
+\item Associative
+\end{itemize}
+
+They have to form a monoid
+
+\begin{verbatim}
+main = do
+    c <- getChar
+    logto `mappend` print2stdout c
+\end{verbatim}
 \end{frame}
 
-\section{Equational Reasoning}
+
+
+\begin{frame}[fragile]
+\frametitle{Composability}
+Plugins have to be composable.
+\begin{verbatim}
+composedPlugin :: Char -> IO ()
+composedPlugin  = logto `mappend` print2stdout
+\end{verbatim}
+\begin{verbatim}
+mappend :: Plugin -> Plugin -> Plugin
+\end{verbatim}
+Both arguments are of type \verb|Char -> IO ()|. The return value is also of type \verb|Char -> IO ()|.
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Associativity}
+The order of evaluation must not matter.
+\begin{verbatim}
+composed1 = logto <*> (print2stdout <*> donothing)
+composed2 = (logto <*> print2stdout) <*> donothing
+\end{verbatim}
+
+\begin{itemize}
+\item The monoid laws state that \verb|mappend| must be associative.
+\item If \verb|mappend| satisfies the monoid laws then we can combine then we are able to add plugins without concerning about the order of evaluation.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Reusability of proof}
+General implementation for \verb|mappend|. If \verb|f| is an \verb|Applicative| and \verb|b| is a \verb|Monoid| then \verb|f b| is also a \verb|Monoid|
+\begin{verbatim}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE OverlappingInstances #-}
+
+instance (Applicative f, Monoid a) => Monoid (f a) where
+  mempty = pure mempty
+  mappend = liftA2 mappend
+\end{verbatim}
+\begin{itemize}
+\item To prove a type class law we can use equational reasoning.
+\item Type classes allow us to generalize definitions. A proof for the generalization is valid for all specializations.
+\end{itemize}
+
+
+\end{frame}
+
+\section{Comparison of testing and proving properties}
+
+\begin{frame}[fragile]
+  \frametitle{Comparison of testing and proving properties}
+  Suppose we want to check if the following equations holds
+\begin{verbatim}
+reverse reverse xs = xs
+\end{verbatim}
+How do we check that?
+\begin{itemize}
+\item Testing
+\item Property-based testing
+\item Proof that property holds
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Testing}
+ In order to check the behavior, a function evaluates both sides of equation and compares the values
+\begin{verbatim}
+input = [1,2,3]
+test_reverse :: Bool
+test_reverse = reverse (reverse input) == input
+\end{verbatim}
+\end{frame}
 
 \begin{frame}
   \frametitle{Comparison of testing and proving properties}
   \begin{description}
   \item[Testing] Code is compiled and executed. Can expose error. Cannot proof absence of errors. 
   \item[Proof] Properties hold under all circumstances.
-  \end{description}
+\end{description}
 \end{frame}
 
 \begin{frame}
   \frametitle{Comparison of testing and proving properties}
 \begin{figure}
   \centering
-     \includegraphics[width=0.7\textwidth]{testing}
+     \includegraphics[width=1\textwidth]{testing}
 \end{figure}
 \end{frame}
 
-\begin{frame}
-  \frametitle{Reasoning about algebraic properties}
-\begin{equation}
-  \label{eq:sum}
-  (x+a)(x+b) = x^2 + (a+b)x+ab
-\end{equation}
-
-\begin{equation}
-  \label{eq:firstalgebra}
-  (x+a)(x+b) = x^2 + ax + xb + ab \text{     (use distributivity)}
-\end{equation}
-
-\begin{equation}
-x^2 + ax + xb + ab = x^2 + ax + bx + ab \text{     (use commutativity)}
-\end{equation}
-
-\begin{equation}
-x^2 + ax + bx + ab = x^2 + (a + b)x + ab \text{     (use distributivity)}
-\end{equation}
-\end{frame}
-
-\begin{frame}[fragile]
-\frametitle{A Mickey Mouse example }
-\begin{verbatim}
-length [x] = 1
-\end{verbatim}
-\begin{lstlisting}[caption={Function definition of {\ttfamily length}},label={lst:lengthdefinition}]
-length [] = 0
-length (x:xs) = 1 + length xs  
-\end{lstlisting}
-\end{frame}
-
-\begin{frame}[fragile]
-\frametitle{Symbolic evaluation}
-
-\begin{lstlisting}[label={lst:lengthproof}]
-length [x]         -- [x] is the same as x:[]
-= length (x:[])    -- apply definition
-= 1 + length []    -- apply definition
-= 1 + 0            --  1 + 0 = 1
-1
-\end{lstlisting}
-\end{frame}
+\section{Proof by structural induction}
 
 \begin{frame}[fragile]
 \frametitle{Proof by structural induction}
@@ -164,21 +348,65 @@ length (xs ++ ys) = length xs + length ys
 
 \begin{frame}[fragile]
 \frametitle{Base case}
+We have to show that the property holds for the base case, the empty list \verb|[]|
 \begin{verbatim}
 length ([] ++ ys) = length [] + length ys
 \end{verbatim}
+\begin{columns}
+  \begin{column}{.5\textwidth}
+    \begin{block}{Left-hand side}
+      \begin{verbatim}
+length ([] ++ ys)
+= length ys
+\end{verbatim}
+    \end{block}
+  \end{column}
+  \begin{column}{.5\textwidth}
+    \begin{block}{Right-hand side}
+\begin{verbatim}
+length [] + length ys   
+= 0 + length ys
+= length ys
+\end{verbatim}
+    \end{block}
+  \end{column}
+\end{columns}
 \end{frame}
+
+
 
 \begin{frame}[fragile]
 \frametitle{Induction step}
+We have to show that if the equation holds for any list \verb|xs| then it also holds for \verb|x:xs|
 \begin{verbatim}
 length ([] ++ ys) = length [] + length ys
 \end{verbatim}
+\begin{columns}
+  \begin{column}{.5\textwidth}
+    \begin{block}{Left-hand side}
+      \begin{verbatim}
+length ((x:xs) ++ ys)      
+= length (x:(xs ++ ys))    
+= 1 + length (xs ++ ys)    
+= 1 + length xs + length ys
+\end{verbatim}
+    \end{block}
+  \end{column}
+  \begin{column}{.5\textwidth}
+    \begin{block}{Right-hand side}
+\begin{verbatim}
+length (x:xs) + length ys
+1 + length xs + length ys
+length [] + length ys   
+\end{verbatim}
+    \end{block}
+  \end{column}
+\end{columns}
+
 \end{frame}
 
 
 
-\subsection{Applicative}
 
 \begin{frame}
   \frametitle{For Further Reading}
@@ -196,11 +424,35 @@ Gabriel Gonzales,
 Equational reasoning at scale, 
 \url{http://www.haskellforall.com}.
 
-
-
 \end{thebibliography}
 \end{frame}
 
+\appendix
+
+\begin{frame}[fragile]
+  \frametitle{An Applicative can be a monoid}
+\begin{figure}
+  \centering
+     \includegraphics[width=0.7\textwidth]{monoid}
+\end{figure}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Proof of the monoid laws}
+\begin{verbatim}
+mappend mempty x                  -- apply def. mappend
+= liftA2 mappend mempty x         -- apply def. mempty
+= liftA2 mappend (pure mempty) x  -- apply def. of liftA2
+= (pure mappend <*> pure mempty) <*> x   
+ -- 3. applicative law
+= pure (mappend mempty) <*> x     -- transform to lambda
+= pure (\a -> mappend mempty a) <*> x   -- 1. monoid law 
+= pure (\a -> a) <*> x                  -- a -> a = id
+= pure id <*> x                    -- 1. applicative law
+= x
+\end{verbatim}
+
+\end{frame}
 \end{document}
 %%% Local Variables: 
 %%% mode: latex
