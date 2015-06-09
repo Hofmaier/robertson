@@ -51,14 +51,9 @@ g = h \textcolor{red}{(f x)}
 \end{Verbatim}
 and get the same result.
 
-Application:
-\begin{itemize}
-\item Efficiency
-\item Verifying correctness of a program - Equational reasoning
-\end{itemize}
 \end{frame}
 \section{Equational Reasoning}
-\subsection{Referential Transparancy}
+\subsection{Referential Transparency}
 \subsection{Reasoning about algebraic properties}
 
 \begin{frame}
@@ -76,11 +71,11 @@ Equational reasoning is a method originally used in algebra.
 \end{equation*}
 \pause
 \begin{equation*}
-x^2 + ax + xb + ab = x^2 + ax + bx + ab \text{     (use commutativity)}
+x^2 + ax + {\color{red} xb} + ab = x^2 + ax + {\color{red} bx} + ab \text{     (use commutativity)}
 \end{equation*}
 \pause
 \begin{equation*}
-x^2 + ax + bx + ab = x^2 + (a + b)x + ab \text{     (use distributivity)}
+x^2 + {\color{red} ax + bx} + ab = x^2 + {\color{red}(a + b)x} + ab \text{     (use distributivity)}
 \end{equation*}
  \footnotetext{Example taken from Graham Hutton, Programming in Haskell}
 \end{frame}
@@ -100,53 +95,27 @@ Given the function definition of \verb|length|.
 length [] = 0
 length (x:xs) = 1 + length xs  
 \end{verbatim}
-
 \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{Reasoning about programs}
 Begin from the left-hand side \verb|length [x]| and try to get to the right-hand side \verb|1| by substituting equals-for-equals.
-\begin{verbatim}
-length [x]         -- [x] is the same as x:[]
-\end{verbatim}
+\begin{Verbatim}[commandchars=\\\{\}]
+length \textcolor{red}{[x]}         -- [x] is the same as x:[]
+\end{Verbatim}
 \pause
 \begin{verbatim}
 = length (x:[])    -- apply definition
 \end{verbatim}
 \pause
-\begin{verbatim}
-= 1 + length []    -- apply definition
-\end{verbatim}
+\begin{Verbatim}[commandchars=\\\{\}]
+= 1 + \textcolor{red}{length []}    -- apply definition
+\end{Verbatim}
 \pause
 \begin{verbatim}
 = 1 + 0            --  1 + 0 = 1
 = 1
 \end{verbatim}
-\end{frame}
-
-\subsection{Why use equational reasoning?}
-\begin{frame}
-\frametitle{Why use equational reasoning?}
-\begin{block}{Example Property}
-Correctness of a program can be specified in the form of an equation.
-\begin{equation}
-\text{fmap } \text{id}  =  \text{id}  
-\end{equation}
-We can use equational reasoning to verify if a property holds.  
-\end{block}
-\begin{block}{Goals of verification}
-\begin{itemize}
-\item Provide certainty that a program has particular properties
-\item Contributes to the reliability and robustness of a software
-\end{itemize}  
-\end{block}
-\begin{block}{Examples of use}
-Example of use
-\begin{itemize}
-\item the first formally verified micro kernel, seL4.
-\item streaming library "pipes"
-\end{itemize}  
-\end{block}
 \end{frame}
 
 \section{Type Classes}
@@ -155,8 +124,8 @@ Example of use
 \frametitle{Type Classes}
   \begin{block}{Type classes}
     \begin{itemize}
+   \item Describes the behavior of a type.
     \item  Type class is a construct that supports overloaded functions and ad hoc polymorphism
-    \item Describes the behavior of a type.
   \item An overloaded function uses different function definitions depending on the types of the arguments
   \item constrains the type variable in the type signature declaration \verb|t|. \verb|t| has to be a member of \verb|Show|.
   \end{itemize}
@@ -209,30 +178,26 @@ keepspaces=true,
 captionpos=b
 }
 
-\subsection{Example Proof for a Monoid Law }
+\section{Example Proof for a Monoid Law }
 
 \begin{frame}[fragile]
 \frametitle{Example Proof for a Monoid Law}
   Suppose we want to build a plugin system
 
-\begin{block}{Requirements}
-\begin{itemize}
-\item composable
-\item associative
-\end{itemize}
-\end{block}
+  \begin{block}{Plugin}
+A plugin in our example is an \verb|IO| action that takes a \verb|Char| value and does some work with it (e.g. log to a file) It has type \verb|Char -> IO ()|.\end{block}
 
 \begin{block}{Usage}
 \begin{verbatim}
 main = do
     c <- getChar
-    logto `mappend` print2stdout c
+    logto c
 \end{verbatim}
 \end{block}
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Composability and Associativity}
+\frametitle{Requirements}
 \begin{block}{Composability}
 \begin{Verbatim}[fontsize=\footnotesize]
 composedPlugin :: Char -> IO ()
@@ -242,23 +207,25 @@ composedPlugin  = logto `mappend` print2stdout
 \begin{Verbatim}[fontsize=\footnotesize]
 -- mappend :: Plugin -> Plugin -> Plugin
 \end{Verbatim}
+
 Both arguments are of type \verb|Char -> IO ()|. The return value is also of type \verb|Char -> IO ()|.
 \end{block}
 \begin{block}{Associativity}
 The order of evaluation must not matter.
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\footnotesize]
 composed1 = logto `mappend` (print2stdout `mappend` donothing)
 composed2 = (logto `mappend` print2stdout) `mappend` donothing
-\end{verbatim}
+\end{Verbatim}
   
 \end{block}
 \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{Monoids to the rescue}
+
 There is a type class for this behavior.
 
-  \begin{itemize}
+\begin{itemize}
 \item A monoid is when you have an associative binary function and a value which acts as an identity. Types which behave like monoids can be part of the type class \verb|Monoid|. For example list \verb|[]| under concatenation is a \verb|Monoid|.
 \item The monoid laws state that \verb|mappend| must be associative.
 \item If \verb|mappend| satisfies the monoid laws then we are able to add plugins without concerning about the order of evaluation.
@@ -266,24 +233,136 @@ There is a type class for this behavior.
 We prove only the left identity law of the \verb|Monoid| type class.
 \end{frame}
 
-\begin{frame}
-\frametitle{Example Proof for a Monoid Law}
-\begin{block}{Left identity law}
-
-    mappend mempty x = x
-
+\begin{frame}[fragile]
+\frametitle{Example Proof for a Monoid Law}  
+\begin{block}{Instance implementation}
+Members of the type class \verb|Monoid| have to implement the functions \verb|mempty| and \verb|mappend|.
+  \begin{Verbatim}[fontsize=\footnotesize]
+    instance (Applicative f, Monoid a) => Monoid (f a) where
+        mempty = pure mempty
+        mappend = liftA2 mappend
+  \end{Verbatim}
 \end{block}
+\begin{block}{Left identity law}
+The left identity law states that \verb|mempty| has to behave like the identity element with respect to \verb|mappend|.
+\begin{Verbatim}[fontsize=\footnotesize]
+mappend mempty x = x
+\end{Verbatim}  
+\end{block}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Proof of the monoid laws}
+ \let\thefootnote\relax\footnotetext{Example from www.haskellforall.com}
+\begin{verbatim}
+mappend mempty x                 -- apply def. mappend
+\end{verbatim}
+\pause
+\begin{verbatim}
+= liftA2 mappend mempty x        -- apply def. mempty
+\end{verbatim}
+\pause
+\begin{verbatim}
+= liftA2 mappend (pure mempty) x -- apply def. of liftA2
+\end{verbatim}
+\pause
+\begin{verbatim}
+= (pure mappend <*> pure mempty) <*> x   
+\end{verbatim}
+
 \end{frame}
 
 
 \begin{frame}[fragile]
-\frametitle{Associativity}
-The order of evaluation must not matter.
+  \frametitle{Proof of the monoid laws}
+\verb|Applicative| type class instances satisfy the following laws:
+\begin{itemize}
+\item
+\begin{Verbatim}
+pure f <*> pure x = pure (f x)
+\end{Verbatim}
+\item
+\begin{Verbatim}
+pure id <*> x = x
+\end{Verbatim}
+\end{itemize}
+
+We can use this property to substitute the left-hand side.
+\begin{Verbatim}[commandchars=\\\{\}]
+\textcolor{red}{(pure mappend <*> pure mempty)} <*> x   
+\end{Verbatim}
+\pause
+\begin{Verbatim}[commandchars=\\\{\}]
+= pure (\textcolor{red}{mappend mempty}) <*> x  -- transform to lambda
+\end{Verbatim}
+\pause
+\begin{Verbatim}[commandchars=+\{\}]
+= pure (\a -> +textcolor{red}{mappend mempty a}) <*> x -- 1. monoid law 
+\end{Verbatim}
+\pause
+\begin{Verbatim}[commandchars=+\{\}]
+= pure +textcolor{red}{(\a -> a)} <*> x                  -- a -> a = id
+\end{Verbatim}
+\pause
+\begin{Verbatim}
+= pure id <*> x                    -- 1. applicative law
+= x
+\end{Verbatim}
 
 \end{frame}
 
+\begin{frame}
+  \frametitle{Questions?}
+\end{frame}
 
-\section{Comparison of testing and proving properties}
+\begin{frame}
+  \frametitle{For Further Reading}
+
+  \begin{thebibliography}{Subramaniam, 2011}
+
+\bibitem{hutton}
+Graham Hutton,
+Programming in Haskell,
+Cambridge University Press,
+2007.
+
+\bibitem{gonzales}
+Gabriel Gonzales,
+Equational reasoning at scale, 
+\url{http://www.haskellforall.com}.
+
+\end{thebibliography}
+\end{frame}
+
+\appendix
+
+\subsection{Why use equational reasoning?}
+\begin{frame}
+\frametitle{Why use equational reasoning?}
+\begin{block}{Example Property}
+Correctness of a program can be specified in the form of an equation.
+\begin{equation}
+\text{fmap } \text{id}  =  \text{id}  
+\end{equation}
+We can use equational reasoning to verify if a property holds.  
+\end{block}
+\begin{block}{Goals of verification}
+\begin{itemize}
+\item Provide certainty that a program has particular properties
+\item Contributes to the reliability and robustness of a software
+\end{itemize}  
+\end{block}
+\begin{block}{Examples of use}
+Example of use
+\begin{itemize}
+\item the first formally verified micro kernel, seL4.
+\item streaming library "pipes"
+\end{itemize}  
+\end{block}
+\end{frame}
+
+
 
 \begin{frame}[fragile]
   \frametitle{Comparison of testing and proving properties}
@@ -326,7 +405,6 @@ test_reverse = reverse (reverse input) == input
 \end{figure}
 \end{frame}
 
-\section{Proof by structural induction}
 
 \begin{frame}[fragile]
 \frametitle{Proof by structural induction}
@@ -372,8 +450,6 @@ length [] + length ys
 \end{columns}
 \end{frame}
 
-
-
 \begin{frame}[fragile]
 \frametitle{Induction step}
 We have to show that if the equation holds for any list \verb|xs| then it also holds for \verb|x:xs|
@@ -405,29 +481,6 @@ length [] + length ys
 \end{frame}
 
 
-
-
-\begin{frame}
-  \frametitle{For Further Reading}
-
-  \begin{thebibliography}{Subramaniam, 2011}
-
-\bibitem{hutton}
-Graham Hutton,
-Programming in Haskell,
-Cambridge University Press,
-2007.
-
-\bibitem{gonzales}
-Gabriel Gonzales,
-Equational reasoning at scale, 
-\url{http://www.haskellforall.com}.
-
-\end{thebibliography}
-\end{frame}
-
-\appendix
-
 \begin{frame}[fragile]
   \frametitle{An Applicative can be a monoid}
 \begin{figure}
@@ -436,24 +489,43 @@ Equational reasoning at scale,
 \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]
-  \frametitle{Proof of the monoid laws}
-\begin{verbatim}
-mappend mempty x                  -- apply def. mappend
-= liftA2 mappend mempty x         -- apply def. mempty
-= liftA2 mappend (pure mempty) x  -- apply def. of liftA2
-= (pure mappend <*> pure mempty) <*> x   
- -- 3. applicative law
-= pure (mappend mempty) <*> x     -- transform to lambda
-= pure (\a -> mappend mempty a) <*> x   -- 1. monoid law 
-= pure (\a -> a) <*> x                  -- a -> a = id
-= pure id <*> x                    -- 1. applicative law
-= x
 
+\begin{frame}[fragile]
+\frametitle{Reusability of proof}
+General implementation for \verb|mappend|. If \verb|f| is an \verb|Applicative| and \verb|b| is a \verb|Monoid| then \verb|f b| is also a \verb|Monoid|
+\begin{verbatim}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE OverlappingInstances #-}
+
+instance (Applicative f, Monoid a) => Monoid (f a) where
+
+  mempty = pure mempty
+  mappend = liftA2 mappend
 \end{verbatim}
+\begin{itemize}
+\item To prove a type class law we can use equational reasoning.
+\item Type classes allow us to generalize definitions. A proof for the generalization is valid for all specializations.
+
+\end{itemize}
 
 \end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Generalization of Proof}
+
+\begin{enumerate}
+\item The standard library provides a \verb|Monoid| instance for \verb|()| 
+
+\item  \verb|IO ()| is a \verb|Monoid| because \verb|IO| is part of the \verb|Applicative| type class and \verb|()| is a \verb|Monoid|. The type \verb|(->) r| (that's the type of Haskell functions) is a part of the \verb|Applicative| type class.
+
+\item 
+\verb|Char -> IO ()| is a \verb|Monoid| because \verb|(->) Char| is an \verb|Applicative| and \verb|IO ()| is a \verb|Monoid|.
+
+\end{enumerate} 
+\end{frame}
+
 \end{document}
+
 %%% Local Variables: 
 %%% mode: latex
 %%% TeX-master: t
