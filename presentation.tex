@@ -26,16 +26,12 @@
 
 \begin{frame}
   \frametitle{Why I'm interested in the topic?}
-\begin{itemize}
-\item Understanding blog post of Gabriel Gonzales
-\item Understanding the advantages of purely functional programming
-  \begin{itemize}
-  \item Higher order functions
-  \item Functional programs are often shorter
-  \item {\color{red} Referential transparency makes it possible to conduct equational reasoning}
-  \item It is fun
-  \end{itemize}
-\end{itemize}
+ An often touted property of pure functional languages is referential transparency.
+\begin{figure}
+  \centering
+     \includegraphics[width=0.3\textwidth]{sideeffects}
+\end{figure}
+
 \end{frame}
 
 \begin{frame}[fragile]
@@ -43,11 +39,11 @@
 Computation yields the same value each time it is invoked
 \begin{Verbatim}[commandchars=\\\{\}]
 y =  f x
-g = h \textcolor{red}{y} 
+g = h \textcolor{red}{y y} 
 \end{Verbatim}
 We can replace the definition of \verb|g| with
 \begin{Verbatim}[commandchars=\\\{\}]
-g = h \textcolor{red}{(f x)}
+g = h \textcolor{red}{(f x) (f x)}
 \end{Verbatim}
 and get the same result.
 
@@ -99,7 +95,17 @@ length (x:xs) = 1 + length xs
 
 \begin{frame}[fragile]
   \frametitle{Reasoning about programs}
+  \begin{block}{Definitions}
+    \begin{verbatim}
+length [] = 0
+length (x:xs) = 1 + length xs  
+\end{verbatim}
+  \end{block}
+  \begin{block}{Step-by-step substitution}
+    
+
 Begin from the left-hand side \verb|length [x]| and try to get to the right-hand side \verb|1| by substituting equals-for-equals.
+
 \begin{Verbatim}[commandchars=\\\{\}]
 length \textcolor{red}{[x]}         -- [x] is the same as x:[]
 \end{Verbatim}
@@ -116,6 +122,7 @@ length \textcolor{red}{[x]}         -- [x] is the same as x:[]
 = 1 + 0            --  1 + 0 = 1
 = 1
 \end{verbatim}
+  \end{block}
 \end{frame}
 
 \section{Type Classes}
@@ -153,14 +160,23 @@ showlist (x:xs) = show x ++ showlist xs
 
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
 \frametitle{Type class laws}
-  \begin{itemize}
+\begin{block}{Laws}
+\begin{itemize}
 \item Type classes exhibit type class laws
 \item Laws ensures expected behavior (e.g. associativity)
 \item The Haskell compiler does not enforce type class laws.
 \item We can use laws to apply equational reasoning
 \end{itemize}  
+\end{block}
+
+\begin{block}{Example}
+The left identity law states that \verb|mempty| has to behave like the identity element with respect to \verb|mappend|.
+\begin{Verbatim}[fontsize=\small]
+mappend mempty x = x
+\end{Verbatim}  
+\end{block}
 \end{frame}
 
 \begin{frame}
@@ -230,7 +246,7 @@ There is a type class for this behavior.
 \item The monoid laws state that \verb|mappend| must be associative.
 \item If \verb|mappend| satisfies the monoid laws then we are able to add plugins without concerning about the order of evaluation.
 \end{itemize}
-We prove only the left identity law of the \verb|Monoid| type class.
+
 \end{frame}
 
 \begin{frame}[fragile]
@@ -306,14 +322,20 @@ We can use this property to substitute the left-hand side.
 \end{Verbatim}
 \pause
 \begin{Verbatim}
-= pure id <*> x                    -- 1. applicative law
+= pure id <*> x                    -- applicative law
 = x
 \end{Verbatim}
 
 \end{frame}
 
 \begin{frame}
-  \frametitle{Questions?}
+  \frametitle{Conclusion}
+  \begin{itemize}
+  \item Referential transparency makes it possible to conduct equational reasoning
+\item The process of proving a property is cumbersome and difficult
+\item Equational reasoning provides certainty that a program has particular properties. 
+\end{itemize}
+
 \end{frame}
 
 \begin{frame}

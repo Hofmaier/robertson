@@ -30,6 +30,8 @@ composed2 = (logto `mappend` print2stdout) `mappend` donothing
 composed3 = logto `mappend` print2stdout 
 composed4 = print2stdout `mappend` logto 
 
+
+
 donothing :: Char -> IO ()
 donothing = \c -> return ()
 
